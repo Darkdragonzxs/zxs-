@@ -1,15 +1,13 @@
-// custom-cursor.js
 (() => {
   // Hide default cursor everywhere
   const style = document.createElement('style');
   style.innerHTML = `* { cursor: none !important; }`;
   document.head.appendChild(style);
 
-  // Create custom cursor element
+  // Create custom cursor
   const cursor = document.createElement('div');
   cursor.id = 'cursor';
   document.body.appendChild(cursor);
-
   Object.assign(cursor.style, {
     position: 'fixed',
     width: '20px',
@@ -33,37 +31,27 @@
     cursor.style.opacity = '0';
   };
 
-  // Listen for mouse movement on parent document
+  // Move cursor on parent document
   document.addEventListener('mousemove', e => moveCursor(e.clientX, e.clientY));
   document.addEventListener('mouseleave', hideCursor);
 
-  // Listen for mouse movement inside same-origin iframe
+  // Hide cursor instantly when hovering iframe
   const iframe = document.getElementById('content-frame');
-  iframe.addEventListener('load', () => {
-    try {
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-      iframeDoc.addEventListener('mousemove', e => {
-        const rect = iframe.getBoundingClientRect();
-        const x = rect.left + e.clientX;
-        const y = rect.top + e.clientY;
-        moveCursor(x, y);
-      });
-      iframeDoc.addEventListener('mouseleave', hideCursor);
-    } catch (err) {
-      console.warn('Cannot access iframe for custom cursor:', err);
-    }
-  });
+  if (iframe) {
+    iframe.addEventListener('mouseenter', hideCursor);
+  }
 
-  // Enlarge cursor when hovering interactive elements
-  const interactives = document.querySelectorAll('a, button, select, input, textarea');
-  interactives.forEach(el => {
-    el.addEventListener('mouseenter', () => {
-      cursor.style.width = '30px';
-      cursor.style.height = '30px';
-    });
-    el.addEventListener('mouseleave', () => {
-      cursor.style.width = '20px';
-      cursor.style.height = '20px';
-    });
+  // Enlarge cursor over interactive elements
+  const enlarge = () => {
+    cursor.style.width = '30px';
+    cursor.style.height = '30px';
+  };
+  const shrink = () => {
+    cursor.style.width = '20px';
+    cursor.style.height = '20px';
+  };
+  document.querySelectorAll('a, button, select, input, textarea').forEach(el => {
+    el.addEventListener('mouseenter', enlarge);
+    el.addEventListener('mouseleave', shrink);
   });
 })();
