@@ -1,10 +1,11 @@
+// custom-cursor.js
 (() => {
-  // Apply cursor: none globally
+  // Hide default cursor everywhere
   const style = document.createElement('style');
   style.innerHTML = `* { cursor: none !important; }`;
   document.head.appendChild(style);
 
-  // Create the custom cursor element
+  // Create custom cursor element
   const cursor = document.createElement('div');
   cursor.id = 'cursor';
   document.body.appendChild(cursor);
@@ -16,15 +17,27 @@
     borderRadius: '50%',
     pointerEvents: 'none',
     transform: 'translate(-50%, -50%)',
-    zIndex: '999999', // very high so it stays on top
+    zIndex: '999999',
     mixBlendMode: 'difference',
     background: 'white',
-    transition: 'transform 0.05s ease-out, width 0.2s ease, height 0.2s ease',
+    transition: 'transform 0.05s ease-out, width 0.2s ease, height 0.2s ease, opacity 0.2s ease',
+    opacity: '1',
   });
 
-  // Move cursor with mouse
+  let lastX = null, lastY = null;
+
   document.addEventListener('mousemove', e => {
-    cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+    lastX = e.clientX;
+    lastY = e.clientY;
+
+    if (lastX !== null && lastY !== null &&
+        lastX >= 0 && lastY >= 0 &&
+        lastX <= window.innerWidth && lastY <= window.innerHeight) {
+      cursor.style.opacity = '1';
+      cursor.style.transform = `translate(${lastX}px, ${lastY}px)`;
+    } else {
+      cursor.style.opacity = '0';
+    }
   });
 
   // Enlarge cursor when hovering interactive elements
@@ -38,5 +51,10 @@
       cursor.style.width = '20px';
       cursor.style.height = '20px';
     });
+  });
+
+  // Optional: hide cursor if mouse leaves window entirely
+  document.addEventListener('mouseleave', () => {
+    cursor.style.opacity = '0';
   });
 })();
