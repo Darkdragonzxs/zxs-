@@ -20,12 +20,11 @@
     zIndex: '999999',
     mixBlendMode: 'difference',
     background: 'white',
-    transition: 'transform 0.05s ease-out, width 0.2s ease, height 0.2s ease, opacity 0.2s ease',
+    transition: 'transform 0.05s ease-out, width 0.2s ease, height 0.2s ease', // removed opacity transition
     opacity: '1',
   });
 
   let lastX = null, lastY = null;
-  let hideTimeout;
 
   const moveCursor = (x, y) => {
     cursor.style.opacity = '1';
@@ -33,9 +32,10 @@
   };
 
   const hideCursor = () => {
-    cursor.style.opacity = '0';
+    cursor.style.opacity = '0'; // instantly disappears
   };
 
+  // Track mouse movement
   document.addEventListener('mousemove', e => {
     lastX = e.clientX;
     lastY = e.clientY;
@@ -44,16 +44,15 @@
         lastX >= 0 && lastY >= 0 &&
         lastX <= window.innerWidth && lastY <= window.innerHeight) {
       moveCursor(lastX, lastY);
-
-      // Reset hide timer
-      clearTimeout(hideTimeout);
-      hideTimeout = setTimeout(() => {
-        hideCursor();
-      }, 100); // hides cursor if no movement for 100ms
+    } else {
+      hideCursor();
     }
   });
 
-  // Enlarge cursor when hovering interactive elements
+  // Hide cursor immediately when leaving window
+  document.addEventListener('mouseleave', hideCursor);
+
+  // Enlarge cursor on interactive elements
   const interactives = document.querySelectorAll('a, button, select, input, textarea');
   interactives.forEach(el => {
     el.addEventListener('mouseenter', () => {
@@ -65,7 +64,4 @@
       cursor.style.height = '20px';
     });
   });
-
-  // Hide cursor if mouse leaves window entirely
-  document.addEventListener('mouseleave', hideCursor);
 })();
