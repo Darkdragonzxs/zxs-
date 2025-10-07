@@ -20,11 +20,9 @@
     zIndex: '999999',
     mixBlendMode: 'difference',
     background: 'white',
-    transition: 'transform 0.05s ease-out, width 0.2s ease, height 0.2s ease', // removed opacity transition
+    transition: 'transform 0.05s ease-out, width 0.2s ease, height 0.2s ease',
     opacity: '1',
   });
-
-  let lastX = null, lastY = null;
 
   const moveCursor = (x, y) => {
     cursor.style.opacity = '1';
@@ -32,27 +30,31 @@
   };
 
   const hideCursor = () => {
-    cursor.style.opacity = '0'; // instantly disappears
+    cursor.style.opacity = '0';
   };
 
-  // Track mouse movement
-  document.addEventListener('mousemove', e => {
-    lastX = e.clientX;
-    lastY = e.clientY;
+  // Listen for mouse movement on parent document
+  document.addEventListener('mousemove', e => moveCursor(e.clientX, e.clientY));
+  document.addEventListener('mouseleave', hideCursor);
 
-    if (lastX !== null && lastY !== null &&
-        lastX >= 0 && lastY >= 0 &&
-        lastX <= window.innerWidth && lastY <= window.innerHeight) {
-      moveCursor(lastX, lastY);
-    } else {
-      hideCursor();
+  // Listen for mouse movement inside same-origin iframe
+  const iframe = document.getElementById('content-frame');
+  iframe.addEventListener('load', () => {
+    try {
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+      iframeDoc.addEventListener('mousemove', e => {
+        const rect = iframe.getBoundingClientRect();
+        const x = rect.left + e.clientX;
+        const y = rect.top + e.clientY;
+        moveCursor(x, y);
+      });
+      iframeDoc.addEventListener('mouseleave', hideCursor);
+    } catch (err) {
+      console.warn('Cannot access iframe for custom cursor:', err);
     }
   });
 
-  // Hide cursor immediately when leaving window
-  document.addEventListener('mouseleave', hideCursor);
-
-  // Enlarge cursor on interactive elements
+  // Enlarge cursor when hovering interactive elements
   const interactives = document.querySelectorAll('a, button, select, input, textarea');
   interactives.forEach(el => {
     el.addEventListener('mouseenter', () => {
