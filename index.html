@@ -225,16 +225,10 @@
 <script src="/assets/upd-log.js"></script>
 <script src="/assets/cursor.js"></script>
 <script>
-  const dropdownBtn = document.querySelector('.dropdown-btn');
-  const menu = document.getElementById('menu');
   const content = document.getElementById('content');
+  const menu = document.getElementById('menu');
+  const dropdownBtn = document.querySelector('.dropdown-btn');
   const homeBtn = document.getElementById('homeBtn');
-
-  // Dropdown toggle
-  dropdownBtn.addEventListener('click', () => menu.classList.toggle('active'));
-  document.addEventListener('click', (e) => {
-    if (!menu.contains(e.target) && !dropdownBtn.contains(e.target)) menu.classList.remove('active');
-  });
 
   // Splash messages
   const splashes = [
@@ -312,17 +306,48 @@
   // Page loader
   const loadPage = (page) => {
     if (page === "home") {
-      // Go back to main homepage layout (launch view)
-      location.reload();
-      return;
+      // Recreate homepage (no full reload)
+      content.innerHTML = `
+        <div id="home">
+          <h1>Welcome to ZXS</h1>
+          <div id="splash">Loading splash...</div>
+          <div class="buttons">
+            <button data-page="games"><i class="fa-solid fa-gamepad"></i> Games</button>
+            <button data-page="linkgen"><i class="fa-solid fa-link"></i> Link Generator</button>
+            <button data-page="partners"><i class="fa-solid fa-handshake"></i> Partners</button>
+            <button data-page="vm"><i class="fa-solid fa-server"></i> VMs</button>
+            <button data-page="settings"><i class="fa-solid fa-gear"></i> Settings</button>
+          </div>
+          <div id="info">
+            <span id="battery">Battery: --%</span> | <span id="time">--:--</span>
+          </div>
+        </div>`;
+      randomSplash();
+      initButtons();
+      initInfo();
     } else {
       content.innerHTML = `<iframe src="/${page}/"></iframe>`;
     }
   };
 
-  // Home + dropdown buttons
+  // Initialize dropdown (works globally)
+  function initDropdown() {
+    dropdownBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menu.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!menu.contains(e.target) && !dropdownBtn.contains(e.target)) {
+        menu.classList.remove('active');
+      }
+    });
+  }
+
+  // Home and menu navigation buttons
   function initButtons() {
-    content.querySelectorAll('[data-page]').forEach(btn => {
+    const buttons = content.querySelectorAll('[data-page], .dropdown-menu button');
+    buttons.forEach(btn => {
       btn.addEventListener('click', () => {
         const page = btn.dataset.page;
         loadPage(page);
@@ -330,10 +355,6 @@
       });
     });
   }
-
-  // Logo and text lead home
-  homeBtn.addEventListener('click', () => loadPage("home"));
-  homeBtn.querySelectorAll('*').forEach(el => el.addEventListener('click', () => loadPage("home")));
 
   // Battery + Time
   function initInfo() {
@@ -358,10 +379,16 @@
     setInterval(updateTime, 1000);
   }
 
-  // Initialize homepage
+  // Logo → go home
+  homeBtn.addEventListener('click', () => loadPage("home"));
+  homeBtn.querySelectorAll('*').forEach(el => el.addEventListener('click', () => loadPage("home")));
+
+  // Initialize everything
+  initDropdown();
   randomSplash();
   initButtons();
   initInfo();
 </script>
+
 </body>
 </html>
