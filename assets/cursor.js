@@ -25,6 +25,16 @@
   });
 
   let lastX = null, lastY = null;
+  let hideTimeout;
+
+  const moveCursor = (x, y) => {
+    cursor.style.opacity = '1';
+    cursor.style.transform = `translate(${x}px, ${y}px)`;
+  };
+
+  const hideCursor = () => {
+    cursor.style.opacity = '0';
+  };
 
   document.addEventListener('mousemove', e => {
     lastX = e.clientX;
@@ -33,10 +43,13 @@
     if (lastX !== null && lastY !== null &&
         lastX >= 0 && lastY >= 0 &&
         lastX <= window.innerWidth && lastY <= window.innerHeight) {
-      cursor.style.opacity = '1';
-      cursor.style.transform = `translate(${lastX}px, ${lastY}px)`;
-    } else {
-      cursor.style.opacity = '0';
+      moveCursor(lastX, lastY);
+
+      // Reset hide timer
+      clearTimeout(hideTimeout);
+      hideTimeout = setTimeout(() => {
+        hideCursor();
+      }, 100); // hides cursor if no movement for 100ms
     }
   });
 
@@ -53,8 +66,6 @@
     });
   });
 
-  // Optional: hide cursor if mouse leaves window entirely
-  document.addEventListener('mouseleave', () => {
-    cursor.style.opacity = '0';
-  });
+  // Hide cursor if mouse leaves window entirely
+  document.addEventListener('mouseleave', hideCursor);
 })();
