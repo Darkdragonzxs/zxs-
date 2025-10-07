@@ -222,150 +222,146 @@
     </div>
   </main>
 
-  <script src="/assets/upd-log.js"></script>
-  <script src="/assets/cursor.js"></script>
-  <script>
-    const dropdownBtn = document.querySelector('.dropdown-btn');
-    const menu = document.getElementById('menu');
-    const content = document.getElementById('content');
-    const homeBtn = document.getElementById('homeBtn');
+<script src="/assets/upd-log.js"></script>
+<script src="/assets/cursor.js"></script>
+<script>
+  const dropdownBtn = document.querySelector('.dropdown-btn');
+  const menu = document.getElementById('menu');
+  const content = document.getElementById('content');
+  const homeBtn = document.getElementById('homeBtn');
 
-    // Dropdown toggle
-    dropdownBtn.addEventListener('click', () => menu.classList.toggle('active'));
-    document.addEventListener('click', (e) => {
-      if (!menu.contains(e.target) && !dropdownBtn.contains(e.target)) menu.classList.remove('active');
-    });
+  // Dropdown toggle
+  dropdownBtn.addEventListener('click', () => menu.classList.toggle('active'));
+  document.addEventListener('click', (e) => {
+    if (!menu.contains(e.target) && !dropdownBtn.contains(e.target)) menu.classList.remove('active');
+  });
 
-    // Splash messages
-    const splashes = [
-      "Now THIS is elegance",
-      "also try petezah g^mes",
-      "yo: gurt | gurt: syfm",
-      "Death to my enemies",
-      "sponsored by raid shadow legends",
-      "815 monique lane",
-      "Yazeed is gay",
-      "You were struck down by divine judgement",
-      "guess whos back",
-      "we (as in you and me) love zxs games",
-      "https://dsc.gg/zxsgames",
-      "okay brotato",
-      "mike wosawski",
-      "Cannot GET: /secret/",
-      "AAAAAAAAAAAAAAAA",
-      "100-33=",
-      "get back to homework lil bro",
-      "yo wheres the roblox port",
-      "https://zxs.rest",
-      "we have awesome partners, check them out!",
-      "puta por que você traduz isso",
-      "goon vm",
-      "also try xenaMC",
-      "IL GO 100 MILES.. AN HOUR",
-      "LITTLE DID YOU KNOW",
-      "I FILLED UP ON GAS",
-      "DUI HOW ABOUT YOU DIE",
-      "miku miku miku",
-      "oh wait the teachers behind you",
-      "theres lots of people who are taken, but im not", 
-      "pmo",
-      "arigato~",
-      "just gimme my money",
-      "holdup i have a gif for this...",
-      "mortem inimicis mies",
-      "skibidi dop dop yes yes",
-      "the es3x would be crazy -veteraning",
-      "archer i need help",
-      "you have a 67 chance to drop the mustard",
-      "less 5h1tty than darrkon!",
-      "the rival to gn-math👿!",
-      "thanks evicly for free eclipse",
-      "ben phonk coming soon ❤‍🩹",
-      "i got a 6 or 7",
-      "bunty",
-      "bedacudo",
-      "if you read this youre gay",
-      "si down",
-      "🥭",
-      "less 5h1tty than scryptonite",
-      "ZXS > interstellar",
-      "ZXS > shadow",
-      "ZXS > TPE",
-      "vapepor",
-      "its gonna be a hit trust",
-      "back off skids",
-      "kaizen hat",
-      "Welcome to ZXS",
-      "we all love zxs games",
-      "sybau",
-      "taken by N/A",
-      "slide to the left",
-      "+408.209 tretrigintillion cookies",
-    ];
+  // Splash messages
+  const splashes = [
+    "Now THIS is elegance",
+    "also try petezah g^mes",
+    "yo: gurt | gurt: syfm",
+    "Death to my enemies",
+    "sponsored by raid shadow legends",
+    "815 monique lane",
+    "Yazeed is gay",
+    "You were struck down by divine judgement",
+    "guess whos back",
+    "we (as in you and me) love zxs games",
+    "https://dsc.gg/zxsgames",
+    "okay brotato",
+    "mike wosawski",
+    "Cannot GET: /secret/",
+    "AAAAAAAAAAAAAAAA",
+    "100-33=",
+    "get back to homework lil bro",
+    "yo wheres the roblox port",
+    "https://zxs.rest",
+    "we have awesome partners, check them out!",
+    "puta por que você traduz isso",
+    "goon vm",
+    "also try xenaMC",
+    "IL GO 100 MILES.. AN HOUR",
+    "LITTLE DID YOU KNOW",
+    "I FILLED UP ON GAS",
+    "DUI HOW ABOUT YOU DIE",
+    "miku miku miku",
+    "oh wait the teachers behind you",
+    "theres lots of people who are taken, but im not", 
+    "pmo",
+    "arigato~",
+    "just gimme my money",
+    "holdup i have a gif for this...",
+    "mortem inimicis mies",
+    "skibidi dop dop yes yes",
+    "the es3x would be crazy -veteraning",
+    "archer i need help",
+    "you have a 67 chance to drop the mustard",
+    "less 5h1tty than darrkon!",
+    "the rival to gn-math👿!",
+    "thanks evicly for free eclipse",
+    "ben phonk coming soon ❤‍🩹",
+    "i got a 6 or 7",
+    "bunty",
+    "bedacudo",
+    "if you read this youre gay",
+    "si down",
+    "🥭",
+    "less 5h1tty than scryptonite",
+    "ZXS > interstellar",
+    "ZXS > shadow",
+    "ZXS > TPE",
+    "vapepor",
+    "its gonna be a hit trust",
+    "back off skids",
+    "kaizen hat",
+    "Welcome to ZXS",
+    "we all love zxs games",
+    "sybau",
+    "taken by N/A",
+    "slide to the left",
+    "+408.209 tretrigintillion cookies",
+  ];
 
-    function randomSplash() {
-      const splash = splashes[Math.floor(Math.random() * splashes.length)];
-      const splashEl = document.getElementById("splash");
-      if (splashEl) splashEl.textContent = splash;
+  function randomSplash() {
+    const splash = splashes[Math.floor(Math.random() * splashes.length)];
+    const splashEl = document.getElementById("splash");
+    if (splashEl) splashEl.textContent = splash;
+  }
+
+  // Page loader
+  const loadPage = (page) => {
+    if (page === "home") {
+      // Go back to main homepage layout (launch view)
+      location.reload();
+      return;
+    } else {
+      content.innerHTML = `<iframe src="/${page}/"></iframe>`;
     }
+  };
 
-    // Page loader
-    const loadPage = (page) => {
-      if (page === "home") {
-        content.innerHTML = document.getElementById('home').outerHTML;
-        randomSplash();
-        initButtons();
-        initInfo();
-      } else {
-        content.innerHTML = `<iframe src="/${page}/"></iframe>`;
-      }
-    };
-
-    // Home + dropdown buttons
-    function initButtons() {
-      content.querySelectorAll('[data-page]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const page = btn.dataset.page;
-          loadPage(page);
-          menu.classList.remove('active');
-        });
+  // Home + dropdown buttons
+  function initButtons() {
+    content.querySelectorAll('[data-page]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const page = btn.dataset.page;
+        loadPage(page);
+        menu.classList.remove('active');
       });
-    }
+    });
+  }
 
-    homeBtn.addEventListener('click', () => loadPage("home"));
+  // Logo and text lead home
+  homeBtn.addEventListener('click', () => loadPage("home"));
+  homeBtn.querySelectorAll('*').forEach(el => el.addEventListener('click', () => loadPage("home")));
 
-    // Battery + Time
-    function initInfo() {
-      const batterySpan = content.querySelector('#battery');
-      const timeSpan = content.querySelector('#time');
+  // Battery + Time
+  function initInfo() {
+    const batterySpan = content.querySelector('#battery');
+    const timeSpan = content.querySelector('#time');
 
-      if (navigator.getBattery) {
-        navigator.getBattery().then(battery => {
-          const updateBattery = () => batterySpan.textContent = `Battery: ${Math.round(battery.level * 100)}%`;
-          updateBattery();
-          battery.addEventListener('levelchange', updateBattery);
-        });
-      } else batterySpan.textContent = "Battery: N/A";
+    if (navigator.getBattery) {
+      navigator.getBattery().then(battery => {
+        const updateBattery = () => batterySpan.textContent = `Battery: ${Math.round(battery.level * 100)}%`;
+        updateBattery();
+        battery.addEventListener('levelchange', updateBattery);
+      });
+    } else batterySpan.textContent = "Battery: N/A";
 
-      const updateTime = () => {
-        const now = new Date();
-        const hours = now.getHours().toString().padStart(2, "0");
-        const mins = now.getMinutes().toString().padStart(2, "0");
-        timeSpan.textContent = `${hours}:${mins}`;
-      };
-      updateTime();
-      setInterval(updateTime, 1000);
-    }
+    const updateTime = () => {
+      const now = new Date();
+      const hours = now.getHours().toString().padStart(2, "0");
+      const mins = now.getMinutes().toString().padStart(2, "0");
+      timeSpan.textContent = `${hours}:${mins}`;
+    };
+    updateTime();
+    setInterval(updateTime, 1000);
+  }
 
-    // Initialize homepage
-    randomSplash();
-    initButtons();
-    initInfo();
-  </script>
+  // Initialize homepage
+  randomSplash();
+  initButtons();
+  initInfo();
+</script>
 </body>
 </html>
-
-
-<script defer data-domain="html.cafe" src="https://milkymouse.com/js/script.js"></script>
-
-   
