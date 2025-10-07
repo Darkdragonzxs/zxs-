@@ -306,7 +306,7 @@
   // Page loader
   const loadPage = (page) => {
     if (page === "home") {
-      // Recreate homepage (no full reload)
+      // Recreate homepage without reloading the whole site
       content.innerHTML = `
         <div id="home">
           <h1>Welcome to ZXS</h1>
@@ -330,7 +330,7 @@
     }
   };
 
-  // Initialize dropdown (works globally)
+  // Initialize dropdown (toggle + outside click)
   function initDropdown() {
     dropdownBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -342,11 +342,20 @@
         menu.classList.remove('active');
       }
     });
+
+    // ✅ Make dropdown buttons actually load pages
+    menu.querySelectorAll('button[data-page]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const page = btn.dataset.page;
+        loadPage(page);
+        menu.classList.remove('active');
+      });
+    });
   }
 
-  // Home and menu navigation buttons
+  // Buttons inside home screen
   function initButtons() {
-    const buttons = content.querySelectorAll('[data-page], .dropdown-menu button');
+    const buttons = content.querySelectorAll('[data-page]');
     buttons.forEach(btn => {
       btn.addEventListener('click', () => {
         const page = btn.dataset.page;
@@ -356,7 +365,7 @@
     });
   }
 
-  // Battery + Time
+  // Battery + Time display
   function initInfo() {
     const batterySpan = content.querySelector('#battery');
     const timeSpan = content.querySelector('#time');
@@ -389,6 +398,7 @@
   initButtons();
   initInfo();
 </script>
+
 
 </body>
 </html>
