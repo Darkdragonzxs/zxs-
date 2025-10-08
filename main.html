@@ -19,21 +19,16 @@
     height: 100%;
     width: 100%;
     overflow: hidden;
-  }
-
-  body {
     position: relative;
   }
 
-  /* BACKGROUND */
+  /* MAIN BACKGROUND */
   body::before {
     content: "";
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('/assets/image/maintheme.png');
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image: url('/assets/images/maintheme.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -69,10 +64,7 @@
     border-radius: 50%;
   }
 
-  .dropdown {
-    position: relative;
-  }
-
+  .dropdown { position: relative; }
   .dropdown-btn {
     background: none;
     border: none;
@@ -97,12 +89,7 @@
     box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     z-index: 1000;
   }
-
-  .dropdown-menu.active {
-    display: flex;
-    animation: fadeIn 0.2s ease-in-out;
-  }
-
+  .dropdown-menu.active { display: flex; animation: fadeIn 0.2s ease-in-out; }
   .dropdown-menu button {
     background: none;
     border: none;
@@ -116,22 +103,16 @@
     transition: background 0.2s ease;
     cursor: pointer;
   }
+  .dropdown-menu button:hover { background: #555; }
 
-  .dropdown-menu button:hover {
-    background: #555;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
 
   #content {
     flex: 1;
     overflow: hidden;
     position: relative;
     width: 100%;
-    height: calc(100% - 60px); /* header height */
+    height: calc(100% - 60px);
   }
 
   #home {
@@ -147,16 +128,8 @@
     position: relative;
   }
 
-  #home h1 {
-    font-size: 2.8em;
-    font-weight: 700;
-  }
-
-  #splash {
-    font-size: 1.2em;
-    opacity: 0.8;
-    margin-top: -10px;
-  }
+  #home h1 { font-size: 2.8em; font-weight: 700; }
+  #splash { font-size: 1.2em; opacity: 0.8; margin-top: -10px; }
 
   #home .buttons {
     display: flex;
@@ -177,10 +150,7 @@
     color: #f2f2f2;
   }
 
-  #home .buttons button:hover {
-    background: rgba(85,85,85,0.9);
-    transform: scale(1.05);
-  }
+  #home .buttons button:hover { background: rgba(85,85,85,0.9); transform: scale(1.05); }
 
   #info {
     position: absolute;
@@ -239,82 +209,104 @@
 </main>
 
 <script>
-  const content = document.getElementById('content');
-  const menu = document.getElementById('menu');
-  const dropdownBtn = document.querySelector('.dropdown-btn');
-  const homeBtn = document.getElementById('homeBtn');
+const content = document.getElementById('content');
+const menu = document.getElementById('menu');
+const dropdownBtn = document.querySelector('.dropdown-btn');
+const homeBtn = document.getElementById('homeBtn');
 
-  // SPLASH MESSAGES
-  const splashes = [
-    "Now THIS is elegance","also try petezah g^mes","yo: gurt | gurt: syfm",
-    "Death to my enemies","sponsored by raid shadow legends","815 monique lane",
-    "guess whos back","we (as in you and me) love zxs games","https://dsc.gg/zxsgames",
-    "okay brotato","miku miku miku","oh wait the teachers behind you",
-    "ZXS > interstellar","ZXS > shadow","ZXS > TPE","vapepor","slide to the left",
-    "+408.209 tretrigintillion cookies"
-  ];
-  function randomSplash() {
-    const splashEl = document.getElementById("splash");
-    if (splashEl) splashEl.textContent = splashes[Math.floor(Math.random() * splashes.length)];
+// SPLASH MESSAGES
+const splashes = [
+  "Now THIS is elegance","also try petezah g^mes","yo: gurt | gurt: syfm",
+  "Death to my enemies","sponsored by raid shadow legends","815 monique lane",
+  "guess whos back","we (as in you and me) love zxs games","https://dsc.gg/zxsgames",
+  "okay brotato","miku miku miku","oh wait the teachers behind you",
+  "ZXS > interstellar","ZXS > shadow","ZXS > TPE","vapepor","slide to the left",
+  "+408.209 tretrigintillion cookies"
+];
+function randomSplash() {
+  const splashEl = document.getElementById("splash");
+  if (splashEl) splashEl.textContent = splashes[Math.floor(Math.random()*splashes.length)];
+}
+
+// PAGE LOADER
+const loadPage = (page) => {
+  if(page==="home"){
+    content.innerHTML = `
+      <div id="home">
+        <h1>Welcome to ZXS</h1>
+        <div id="splash">Loading splash...</div>
+        <div class="buttons">
+          <button data-page="games"><i class="fa-solid fa-gamepad"></i> Games</button>
+          <button data-page="linkgen"><i class="fa-solid fa-link"></i> Link Generator</button>
+          <button data-page="partners"><i class="fa-solid fa-handshake"></i> Partners</button>
+          <button data-page="vm"><i class="fa-solid fa-server"></i> VMs</button>
+          <button data-page="settings"><i class="fa-solid fa-gear"></i> Settings</button>
+        </div>
+        <div id="info">
+          <span id="battery">Battery: --%</span> | <span id="time">--:--</span>
+        </div>
+      </div>`;
+    randomSplash();
+    initButtons();
+    initInfo();
+  } else {
+    content.innerHTML = `<iframe src="/${page}/"></iframe>`;
   }
+}
 
-  randomSplash();
-
-  // DROPDOWN
-  dropdownBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    menu.classList.toggle('active');
+// DROPDOWN
+dropdownBtn.addEventListener('click', e=>{
+  e.stopPropagation();
+  menu.classList.toggle('active');
+});
+document.addEventListener('click', e=>{
+  if(!menu.contains(e.target) && !dropdownBtn.contains(e.target))
+    menu.classList.remove('active');
+});
+menu.querySelectorAll('button[data-page]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    loadPage(btn.dataset.page);
+    menu.classList.remove('active');
   });
-  document.addEventListener('click', e => {
-    if (!menu.contains(e.target) && !dropdownBtn.contains(e.target))
+});
+
+// HOME BUTTON
+homeBtn.addEventListener('click', ()=>loadPage("home"));
+
+// BUTTONS IN HOME
+function initButtons(){
+  content.querySelectorAll('[data-page]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      loadPage(btn.dataset.page);
       menu.classList.remove('active');
-  });
-  menu.querySelectorAll('button[data-page]').forEach(btn => {
-    btn.addEventListener('click', () => loadPage(btn.dataset.page));
-  });
-
-  // PAGE LOADER
-  function loadPage(page) {
-    if (page === "home") {
-      content.innerHTML = document.getElementById('home').outerHTML;
-      randomSplash();
-      initButtons();
-      initInfo();
-    } else {
-      content.innerHTML = `<iframe src="/${page}/"></iframe>`;
-    }
-  }
-
-  // BUTTONS
-  function initButtons() {
-    content.querySelectorAll('[data-page]').forEach(btn => {
-      btn.addEventListener('click', () => loadPage(btn.dataset.page));
     });
-  }
+  });
+}
 
-  // BATTERY + TIME
-  function initInfo() {
-    const batterySpan = content.querySelector('#battery');
-    const timeSpan = content.querySelector('#time');
-    if (navigator.getBattery) {
-      navigator.getBattery().then(battery => {
-        const updateBattery = () => batterySpan.textContent = `Battery: ${Math.round(battery.level*100)}%`;
-        updateBattery();
-        battery.addEventListener('levelchange', updateBattery);
-      });
-    } else batterySpan.textContent = "Battery: N/A";
+// BATTERY + TIME
+function initInfo(){
+  const batterySpan = content.querySelector('#battery');
+  const timeSpan = content.querySelector('#time');
+  if(navigator.getBattery){
+    navigator.getBattery().then(battery=>{
+      const updateBattery = ()=> batterySpan.textContent=`Battery: ${Math.round(battery.level*100)}%`;
+      updateBattery();
+      battery.addEventListener('levelchange', updateBattery);
+    });
+  } else batterySpan.textContent="Battery: N/A";
 
-    const updateTime = () => {
-      const now = new Date();
-      timeSpan.textContent = `${now.getHours().toString().padStart(2,"0")}:${now.getMinutes().toString().padStart(2,"0")}`;
-    };
-    updateTime();
-    setInterval(updateTime, 1000);
-  }
+  const updateTime = ()=>{
+    const now = new Date();
+    timeSpan.textContent=`${now.getHours().toString().padStart(2,"0")}:${now.getMinutes().toString().padStart(2,"0")}`;
+  };
+  updateTime();
+  setInterval(updateTime,1000);
+}
 
-  homeBtn.addEventListener('click', () => loadPage("home"));
-  initButtons();
-  initInfo();
+// INIT
+randomSplash();
+initButtons();
+initInfo();
 </script>
 
 </body>
