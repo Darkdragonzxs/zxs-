@@ -18,10 +18,7 @@
     padding: 40px;
     backdrop-filter: blur(12px);
   }
-  h1 {
-    font-size: 32px;
-    margin-bottom: 20px;
-  }
+  h1 { font-size: 32px; margin-bottom: 20px; }
   section {
     width: 100%;
     max-width: 520px;
@@ -50,9 +47,7 @@
     cursor: pointer;
     transition: background 0.25s;
   }
-  .theme-option:hover {
-    background: rgba(255,255,255,0.12);
-  }
+  .theme-option:hover { background: rgba(255,255,255,0.12); }
   input {
     width: 100%;
     padding: 10px;
@@ -63,16 +58,8 @@
     color: white;
     margin-bottom: 8px;
   }
-  .panic-info {
-    font-size: 14px;
-    opacity: 0.8;
-    margin-top: 6px;
-  }
-  footer {
-    margin-top: 40px;
-    opacity: 0.6;
-    font-size: 14px;
-  }
+  .panic-info { font-size: 14px; opacity: 0.8; margin-top: 6px; }
+  footer { margin-top: 40px; opacity: 0.6; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -81,9 +68,7 @@
 
 <section id="credits">
   <h2>Credits</h2>
-  <p>Created by <b>ZXS</b>. made with <3.</p>
-    <b>HUGE thanks to bread, truffled, 98corbins, and other people who ported the games on this site!</b>
-    <p>their discord: https://discord.gg/RFX2Fjj2Z8</p>
+  <p>Created by <b>ZXS</b>. Built for creative minds and chaos enjoyers.</p>
 </section>
 
 <section id="themes">
@@ -109,22 +94,30 @@
 <script>
   // === THEME SYNC SYSTEM ===
   const themes = {
-    main: { bg: '/maintheme.png', text: '#ffffff' },
-    space: { bg: '/assets/images/space.png', text: '#cfe8ff' },
-    hacker: { bg: '/assets/images/hacker.png', text: '#00ff00' },
-    miku: { bg: '/assets/images/miku.png', text: '#b1f2ff' },
-    teto: { bg: '/assets/images/teto.png', text: '#ff8bd1' },
-    neru: { bg: '/assets/images/neru.png', text: '#ffe75c' },
+    main: { bg: '#1c1c1c', fg: '#f2f2f2', accent: '#333' },
+    space: { bg: '#0b0f25', fg: '#c9d1ff', accent: '#1f2845' },
+    hacker: { bg: '#000', fg: '#00ff00', accent: '#004400' },
+    miku: { bg: '#88e0ef', fg: '#ffffff', accent: '#4a90e2' },
+    teto: { bg: '#2b001f', fg: '#ff77aa', accent: '#99004c' },
+    neru: { bg: '#1f1f1f', fg: '#ffcc00', accent: '#444400' },
   };
 
+  function applyTheme(name) {
+    const theme = themes[name] || themes.main;
+    document.body.style.background = theme.bg + '88'; // semi-transparent
+    document.body.style.color = theme.fg;
+    document.querySelectorAll('.theme-option').forEach(b => b.style.color = theme.fg);
+    localStorage.setItem('zxs-theme', name);
+    window.dispatchEvent(new Event('themeChange'));
+  }
+
   document.querySelectorAll('.theme-option[data-theme]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const theme = btn.getAttribute('data-theme');
-      const data = themes[theme];
-      localStorage.setItem('zxs-theme', JSON.stringify(data));
-      window.dispatchEvent(new StorageEvent('storage', { key: 'zxs-theme' }));
-    });
+    btn.addEventListener('click', () => applyTheme(btn.getAttribute('data-theme')));
   });
+
+  // Load saved theme
+  const savedTheme = localStorage.getItem('zxs-theme') || 'main';
+  applyTheme(savedTheme);
 
   // === PANIC KEY SYSTEM ===
   const panicButton = document.getElementById('setPanicKey');
