@@ -152,26 +152,55 @@
 </style>
 </head>
 <body>
-  <header>
-    <div class="logo" id="homeBtn">
-      <img src="/assets/images/logo.png" alt="ZXS Logo">
-      <span>ZXS</span>
+<header>
+  <div class="logo" id="homeBtn">
+    <img src="/assets/images/logo.png" alt="ZXS Logo">
+    <span>ZXS</span>
+  </div>
+  <div class="dropdown">
+    <button class="dropdown-btn"><i class="fa-solid fa-bars"></i> Menu</button>
+    <div class="dropdown-menu" id="menu">
+      <button data-page="home"><i class="fa-solid fa-house"></i> Home</button>
+      <button data-page="games"><i class="fa-solid fa-gamepad"></i> Games</button>
+      <button data-page="linkgen"><i class="fa-solid fa-link"></i> Link Generator</button>
+      <button data-page="partners"><i class="fa-solid fa-handshake"></i> Partners</button>
+      <button data-page="vm"><i class="fa-solid fa-server"></i> VMs</button>
+      <button data-page="settings"><i class="fa-solid fa-gear"></i> Settings</button>
     </div>
+  </div>
+</header>
 
-    <div class="dropdown">
-      <button class="dropdown-btn"><i class="fa-solid fa-bars"></i> Menu</button>
-      <div class="dropdown-menu" id="menu">
-        <button data-page="home"><i class="fa-solid fa-house"></i> Home</button>
-        <button data-page="games"><i class="fa-solid fa-gamepad"></i> Games</button>
-        <button data-page="linkgen"><i class="fa-solid fa-link"></i> Link Generator</button>
-        <button data-page="partners"><i class="fa-solid fa-handshake"></i> Partners</button>
-        <button data-page="vm"><i class="fa-solid fa-server"></i> VMs</button>
-        <button data-page="settings"><i class="fa-solid fa-gear"></i> Settings</button>
-      </div>
+<main id="content">
+  <div id="home">
+    <h1>Welcome to ZXS</h1>
+    <div id="splash">Loading splash...</div>
+    <div class="buttons">
+      <button data-page="games"><i class="fa-solid fa-gamepad"></i> Games</button>
+      <button data-page="linkgen"><i class="fa-solid fa-link"></i> Link Generator</button>
+      <button data-page="partners"><i class="fa-solid fa-handshake"></i> Partners</button>
+      <button data-page="vm"><i class="fa-solid fa-server"></i> VMs</button>
+      <button data-page="settings"><i class="fa-solid fa-gear"></i> Settings</button>
     </div>
-  </header>
+    <div id="info"><span id="battery">Battery: --%</span> | <span id="time">--:--</span></div>
+  </div>
+</main>
 
-  <main id="content">
+<script src="/assets/upd-log.js"></script>
+<script src="/assets/cursor.js"></script>
+<script>
+const content = document.getElementById('content');
+const menu = document.getElementById('menu');
+const dropdownBtn = document.querySelector('.dropdown-btn');
+const homeBtn = document.getElementById('homeBtn');
+
+// === SPLASH MESSAGES ===
+const splashes = ["Now THIS is elegance","also try petezah g^mes","yo: gurt | gurt: syfm","Death to my enemies","sponsored by raid shadow legends","815 monique lane","guess whos back","we (as in you and me) love zxs games","https://dsc.gg/zxsgames","okay brotato","miku miku miku","oh wait the teachers behind you","ZXS > interstellar","ZXS > shadow","ZXS > TPE","vapepor","slide to the left","+408.209 tretrigintillion cookies"];
+function randomSplash(){ const splashEl=document.getElementById("splash"); if(splashEl) splashEl.textContent=splashes[Math.floor(Math.random()*splashes.length)]; }
+
+// === PAGE LOADER ===
+const loadPage=(page)=>{
+  if(page==="home"){
+    content.innerHTML=`
     <div id="home">
       <h1>Welcome to ZXS</h1>
       <div id="splash">Loading splash...</div>
@@ -183,141 +212,86 @@
         <button data-page="settings"><i class="fa-solid fa-gear"></i> Settings</button>
       </div>
       <div id="info"><span id="battery">Battery: --%</span> | <span id="time">--:--</span></div>
-    </div>
-  </main>
+    </div>`;
+    randomSplash();
+    initButtons();
+    initInfo();
+    applyTheme(localStorage.getItem('zxs-theme')||'main'); // apply text color
+  } else { content.innerHTML=`<iframe src="/${page}/"></iframe>`; }
+};
 
-<script src="/assets/upd-log.js"></script>
-<script src="/assets/cursor.js"></script>
-<script>
-  const content = document.getElementById('content');
-  const menu = document.getElementById('menu');
-  const dropdownBtn = document.querySelector('.dropdown-btn');
-  const homeBtn = document.getElementById('homeBtn');
+// === DROPDOWN ===
+function initDropdown(){
+  dropdownBtn.addEventListener('click',e=>{ e.stopPropagation(); menu.classList.toggle('active'); });
+  document.addEventListener('click',e=>{ if(!menu.contains(e.target)&&!dropdownBtn.contains(e.target)) menu.classList.remove('active'); });
+  menu.querySelectorAll('button[data-page]').forEach(btn=>{ btn.addEventListener('click',()=>{ loadPage(btn.dataset.page); menu.classList.remove('active'); }); });
+}
 
-  // === SPLASH MESSAGES ===
-  const splashes = [
-    "Now THIS is elegance","also try petezah g^mes","yo: gurt | gurt: syfm",
-    "Death to my enemies","sponsored by raid shadow legends","815 monique lane",
-    "guess whos back","we (as in you and me) love zxs games","https://dsc.gg/zxsgames",
-    "okay brotato","miku miku miku","oh wait the teachers behind you",
-    "ZXS > interstellar","ZXS > shadow","ZXS > TPE","vapepor","slide to the left",
-    "+408.209 tretrigintillion cookies"
-  ];
+// === BUTTONS ===
+function initButtons(){ content.querySelectorAll('[data-page]').forEach(btn=>{ btn.addEventListener('click',()=>{ loadPage(btn.dataset.page); menu.classList.remove('active'); }); }); }
 
-  function randomSplash() {
-    const splashEl = document.getElementById("splash");
-    if (splashEl) splashEl.textContent = splashes[Math.floor(Math.random() * splashes.length)];
-  }
+// === BATTERY + TIME ===
+function initInfo(){
+  const batterySpan = content.querySelector('#battery');
+  const timeSpan = content.querySelector('#time');
 
-  // === PAGE LOADER ===
-  const loadPage = (page) => {
-    if(page === "home"){
-      content.innerHTML = `
-        <div id="home">
-          <h1>Welcome to ZXS</h1>
-          <div id="splash">Loading splash...</div>
-          <div class="buttons">
-            <button data-page="games"><i class="fa-solid fa-gamepad"></i> Games</button>
-            <button data-page="linkgen"><i class="fa-solid fa-link"></i> Link Generator</button>
-            <button data-page="partners"><i class="fa-solid fa-handshake"></i> Partners</button>
-            <button data-page="vm"><i class="fa-solid fa-server"></i> VMs</button>
-            <button data-page="settings"><i class="fa-solid fa-gear"></i> Settings</button>
-          </div>
-          <div id="info"><span id="battery">Battery: --%</span> | <span id="time">--:--</span></div>
-        </div>`;
-      randomSplash();
-      initButtons();
-      initInfo();
-    } else {
-      content.innerHTML = `<iframe src="/${page}/"></iframe>`;
-    }
+  if(navigator.getBattery){
+    navigator.getBattery().then(battery=>{
+      const updateBattery = ()=>batterySpan.textContent=`Battery: ${Math.round(battery.level*100)}%`;
+      updateBattery();
+      battery.addEventListener('levelchange',updateBattery);
+    });
+  } else batterySpan.textContent="Battery: N/A";
+
+  const updateTime=()=>{
+    const now = new Date();
+    timeSpan.textContent=`${now.getHours().toString().padStart(2,"0")}:${now.getMinutes().toString().padStart(2,"0")}`;
   };
+  updateTime();
+  setInterval(updateTime,1000);
+}
 
-  // === DROPDOWN ===
-  function initDropdown() {
-    dropdownBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      menu.classList.toggle('active');
-    });
-    document.addEventListener('click', e => {
-      if(!menu.contains(e.target) && !dropdownBtn.contains(e.target))
-        menu.classList.remove('active');
-    });
-    menu.querySelectorAll('button[data-page]').forEach(btn=>{
-      btn.addEventListener('click', ()=>{ loadPage(btn.dataset.page); menu.classList.remove('active'); });
-    });
-  }
+homeBtn.addEventListener('click',()=>loadPage("home"));
+homeBtn.querySelectorAll('*').forEach(el=>el.addEventListener('click',()=>loadPage("home")));
+initDropdown();
+randomSplash();
+initButtons();
+initInfo();
 
-  // === BUTTONS ===
-  function initButtons() {
-    content.querySelectorAll('[data-page]').forEach(btn=>{
-      btn.addEventListener('click', ()=>{ loadPage(btn.dataset.page); menu.classList.remove('active'); });
-    });
-  }
+// === THEME SYSTEM (Background + Homepage Text Color) ===
+const themes = {
+  main:   { bg:'/assets/images/maintheme.png', text:'white' },
+  space:  { bg:'/assets/images/space.png', text:'white' },
+  hacker: { bg:'/assets/images/hacker.png', text:'lime' },
+  miku:   { bg:'/assets/images/miku.png', text:'black' },
+  teto:   { bg:'/assets/images/teto.png', text:'white' },
+  neru:   { bg:'/assets/images/neru.png', text:'yellow' },
+};
 
-  // === BATTERY + TIME ===
-  function initInfo() {
-    const batterySpan = content.querySelector('#battery');
-    const timeSpan = content.querySelector('#time');
+function applyTheme(name){
+  const theme = themes[name]||themes.main;
+  document.body.style.backgroundImage=`url('${theme.bg}')`;
+  document.body.style.backgroundSize='cover';
+  document.body.style.backgroundPosition='center';
+  document.body.style.backgroundRepeat='no-repeat';
+  document.body.style.backgroundAttachment='fixed';
 
-    if(navigator.getBattery){
-      navigator.getBattery().then(battery=>{
-        const updateBattery = ()=>batterySpan.textContent=`Battery: ${Math.round(battery.level*100)}%`;
-        updateBattery();
-        battery.addEventListener('levelchange', updateBattery);
-      });
-    } else batterySpan.textContent="Battery: N/A";
+  const home = document.getElementById('home');
+  if(home) home.style.color = theme.text;
+}
 
-    const updateTime=()=>{
-      const now = new Date();
-      timeSpan.textContent = `${now.getHours().toString().padStart(2,"0")}:${now.getMinutes().toString().padStart(2,"0")}`;
-    };
-    updateTime();
-    setInterval(updateTime,1000);
-  }
+// Apply saved theme on load
+applyTheme(localStorage.getItem('zxs-theme')||'main');
 
-  homeBtn.addEventListener('click', ()=>loadPage("home"));
-  homeBtn.querySelectorAll('*').forEach(el=>el.addEventListener('click', ()=>loadPage("home")));
+// Listen for theme changes from settings
+window.addEventListener('themeChange',()=>{
+  const updatedTheme=localStorage.getItem('zxs-theme')||'main';
+  applyTheme(updatedTheme);
+});
 
-  initDropdown();
-  randomSplash();
-  initButtons();
-  initInfo();
-</script>
-
-<script>
-  // === THEME SYSTEM (Background only) ===
-  const themes = {
-    main: { bg: '/assets/images/maintheme.png' },
-    space: { bg: '/assets/images/space.png' },
-    hacker: { bg: '/assets/images/hacker.png' },
-    miku: { bg: '/assets/images/miku.png' },
-    teto: { bg: '/assets/images/teto.png' },
-    neru: { bg: '/assets/images/neru.png' },
-  };
-
-  function applyTheme(name){
-    const theme = themes[name] || themes.main;
-    document.body.style.backgroundImage = `url('${theme.bg}')`;
-    document.body.style.backgroundSize = 'cover';
-    document.body.style.backgroundPosition = 'center';
-    document.body.style.backgroundRepeat = 'no-repeat';
-    document.body.style.backgroundAttachment = 'fixed';
-  }
-
-  // Apply saved theme on load
-  const savedTheme = localStorage.getItem('zxs-theme') || 'main';
-  applyTheme(savedTheme);
-
-  // Listen for changes from settings page
-  window.addEventListener('themeChange', ()=>{
-    const updatedTheme = localStorage.getItem('zxs-theme') || 'main';
-    applyTheme(updatedTheme);
-  });
-
-  window.addEventListener('storage', e=>{
-    if(e.key==='zxs-theme') applyTheme(e.newValue || 'main');
-  });
+window.addEventListener('storage',e=>{
+  if(e.key==='zxs-theme') applyTheme(e.newValue||'main');
+});
 </script>
 </body>
 </html>
