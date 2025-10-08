@@ -1,57 +1,47 @@
-(() => {
-  // Hide default cursor everywhere
-  const style = document.createElement('style');
-  style.innerHTML = `* { cursor: none !important; }`;
-  document.head.appendChild(style);
-
-  // Create custom cursor
-  const cursor = document.createElement('div');
-  cursor.id = 'cursor';
+// cursor.js
+document.addEventListener("DOMContentLoaded", () => {
+  // Create cursor element
+  const cursor = document.createElement("div");
+  cursor.style.position = "fixed";
+  cursor.style.width = "16px";
+  cursor.style.height = "16px";
+  cursor.style.borderRadius = "50%";
+  cursor.style.background = "rgba(255,255,255,0.8)";
+  cursor.style.pointerEvents = "none";
+  cursor.style.zIndex = "9999";
+  cursor.style.transform = "translate(-50%, -50%)";
+  cursor.style.transition = "background 0.2s ease";
   document.body.appendChild(cursor);
-  Object.assign(cursor.style, {
-    position: 'fixed',
-    width: '20px',
-    height: '20px',
-    borderRadius: '50%',
-    pointerEvents: 'none',
-    transform: 'translate(-50%, -50%)',
-    zIndex: '999999',
-    mixBlendMode: 'difference',
-    background: 'white',
-    transition: 'transform 0.05s ease-out, width 0.2s ease, height 0.2s ease',
-    opacity: '1',
+
+  let mouseX = 0, mouseY = 0;
+  let cursorX = 0, cursorY = 0;
+  const delay = 0.12; // smaller = faster follow (0.1–0.2 looks nice)
+
+  // Track mouse movement
+  document.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
   });
 
-  const moveCursor = (x, y) => {
-    cursor.style.opacity = '1';
-    cursor.style.transform = `translate(${x}px, ${y}px)`;
-  };
-
-  const hideCursor = () => {
-    cursor.style.opacity = '0';
-  };
-
-  // Move cursor on parent document
-  document.addEventListener('mousemove', e => moveCursor(e.clientX, e.clientY));
-  document.addEventListener('mouseleave', hideCursor);
-
-  // Hide cursor instantly when hovering iframe
-  const iframe = document.getElementById('content-frame');
-  if (iframe) {
-    iframe.addEventListener('mouseenter', hideCursor);
+  // Animate cursor following
+  function animate() {
+    cursorX += (mouseX - cursorX) * delay;
+    cursorY += (mouseY - cursorY) * delay;
+    cursor.style.left = `${cursorX}px`;
+    cursor.style.top = `${cursorY}px`;
+    requestAnimationFrame(animate);
   }
+  animate();
 
-  // Enlarge cursor over interactive elements
-  const enlarge = () => {
-    cursor.style.width = '30px';
-    cursor.style.height = '30px';
-  };
-  const shrink = () => {
-    cursor.style.width = '20px';
-    cursor.style.height = '20px';
-  };
-  document.querySelectorAll('a, button, select, input, textarea').forEach(el => {
-    el.addEventListener('mouseenter', enlarge);
-    el.addEventListener('mouseleave', shrink);
+  // Optional: small hover feedback
+  document.querySelectorAll("button, a, input").forEach(el => {
+    el.addEventListener("mouseenter", () => {
+      cursor.style.transform = "translate(-50%, -50%) scale(1.5)";
+      cursor.style.background = "rgba(255,255,255,0.4)";
+    });
+    el.addEventListener("mouseleave", () => {
+      cursor.style.transform = "translate(-50%, -50%) scale(1)";
+      cursor.style.background = "rgba(255,255,255,0.8)";
+    });
   });
-})();
+});
