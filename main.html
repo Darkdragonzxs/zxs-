@@ -353,12 +353,29 @@
   initInfo();
 </script>
 <script>
-  // Set homepage background image
-  document.body.style.backgroundImage = "url('/assets/image/maintheme.png')";
-  document.body.style.backgroundSize = "cover";
-  document.body.style.backgroundPosition = "center";
-  document.body.style.backgroundRepeat = "no-repeat";
-  document.body.style.backgroundAttachment = "fixed"; // optional, makes it stay in place
+  // Apply main theme background
+  const content = document.getElementById('content');
+
+  // Make content take full height so background shows
+  content.style.position = 'relative';
+  content.style.width = '100%';
+  content.style.height = '100%';
+
+  // Add background image behind everything
+  const bgDiv = document.createElement('div');
+  bgDiv.style.position = 'absolute';
+  bgDiv.style.top = 0;
+  bgDiv.style.left = 0;
+  bgDiv.style.width = '100%';
+  bgDiv.style.height = '100%';
+  bgDiv.style.zIndex = '-1'; // behind content
+  bgDiv.style.backgroundImage = "url('/assets/image/maintheme.png')";
+  bgDiv.style.backgroundSize = 'cover';
+  bgDiv.style.backgroundPosition = 'center';
+  bgDiv.style.backgroundRepeat = 'no-repeat';
+  bgDiv.style.backgroundAttachment = 'fixed';
+
+  content.prepend(bgDiv);
 </script>
 
 </body>
