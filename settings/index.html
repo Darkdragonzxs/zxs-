@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZXS Settings</title>
+<link rel="icon" href="/assets/images/favicon.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    background: transparent;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    backdrop-filter: blur(12px);
+  }
+  h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+  }
+  section {
+    width: 100%;
+    max-width: 520px;
+    background: rgba(0, 0, 0, 0.45);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  }
+  h2 {
+    font-size: 22px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    padding-bottom: 6px;
+  }
+  .theme-option {
+    display: block;
+    background: rgba(255,255,255,0.05);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.25s;
+  }
+  .theme-option:hover {
+    background: rgba(255,255,255,0.12);
+  }
+  input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+    background: rgba(255,255,255,0.07);
+    color: white;
+    margin-bottom: 8px;
+  }
+  .panic-info {
+    font-size: 14px;
+    opacity: 0.8;
+    margin-top: 6px;
+  }
+  footer {
+    margin-top: 40px;
+    opacity: 0.6;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Settings</h1>
+
+<section id="credits">
+  <h2>Credits</h2>
+  <p>Created by <b>ZXS</b>. made with <3.</p>
+    <b>HUGE thanks to bread, truffled, 98corbins, and other people who ported the games on this site!</b>
+    <p>their discord: https://discord.gg/RFX2Fjj2Z8</p>
+</section>
+
+<section id="themes">
+  <h2>Themes</h2>
+  <button class="theme-option" data-theme="main">Main Theme</button>
+  <button class="theme-option" data-theme="space">Space</button>
+  <button class="theme-option" data-theme="hacker">Hacker</button>
+  <button class="theme-option" data-theme="miku">Miku</button>
+  <button class="theme-option" data-theme="teto">Teto</button>
+  <button class="theme-option" data-theme="neru">Neru</button>
+</section>
+
+<section id="panic">
+  <h2>Panic Key</h2>
+  <p>Press the button below, then press a key to set your panic key. You can also change the URL it redirects to.</p>
+  <button id="setPanicKey" class="theme-option">Set Panic Key</button>
+  <input id="panicUrl" placeholder="Enter Panic URL (e.g. https://google.com)">
+  <div class="panic-info" id="panicDisplay">Current Panic Key: <b>None</b></div>
+</section>
+
+<footer>© 2025 ZXS — All Rights Reserved</footer>
+
+<script>
+  // === THEME SYNC SYSTEM ===
+  const themes = {
+    main: { bg: '/maintheme.png', text: '#ffffff' },
+    space: { bg: '/assets/images/space.png', text: '#cfe8ff' },
+    hacker: { bg: '/assets/images/hacker.png', text: '#00ff00' },
+    miku: { bg: '/assets/images/miku.png', text: '#b1f2ff' },
+    teto: { bg: '/assets/images/teto.png', text: '#ff8bd1' },
+    neru: { bg: '/assets/images/neru.png', text: '#ffe75c' },
+  };
+
+  document.querySelectorAll('.theme-option[data-theme]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const theme = btn.getAttribute('data-theme');
+      const data = themes[theme];
+      localStorage.setItem('zxs-theme', JSON.stringify(data));
+      window.dispatchEvent(new StorageEvent('storage', { key: 'zxs-theme' }));
+    });
+  });
+
+  // === PANIC KEY SYSTEM ===
+  const panicButton = document.getElementById('setPanicKey');
+  const panicUrlInput = document.getElementById('panicUrl');
+  const panicDisplay = document.getElementById('panicDisplay');
+  let awaitingKey = false;
+
+  // Load saved values
+  const savedKey = localStorage.getItem('panicKey');
+  const savedUrl = localStorage.getItem('panicUrl');
+  if (savedKey) panicDisplay.innerHTML = `Current Panic Key: <b>${savedKey}</b>`;
+  if (savedUrl) panicUrlInput.value = savedUrl;
+
+  panicButton.addEventListener('click', () => {
+    awaitingKey = true;
+    panicDisplay.innerHTML = "Press any key...";
+  });
+
+  document.addEventListener('keydown', e => {
+    if (awaitingKey) {
+      localStorage.setItem('panicKey', e.key);
+      panicDisplay.innerHTML = `Current Panic Key: <b>${e.key}</b>`;
+      awaitingKey = false;
+    } else {
+      const panicKey = localStorage.getItem('panicKey');
+      const panicUrl = localStorage.getItem('panicUrl') || 'https://google.com';
+      if (panicKey && e.key.toLowerCase() === panicKey.toLowerCase()) {
+        window.location.href = panicUrl;
+      }
+    }
+  });
+
+  panicUrlInput.addEventListener('input', () => {
+    localStorage.setItem('panicUrl', panicUrlInput.value);
+  });
+</script>
+
+</body>
+</html>
