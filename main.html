@@ -352,7 +352,41 @@
   initButtons();
   initInfo();
 </script>
+  <script>
+  // === ZXS THEME SYNC FOR HOMEPAGE ===
+  const themes = {
+    main: { bg: '#1c1c1c', fg: '#f2f2f2', accent: '#333' },
+    space: { bg: '#0b0f25', fg: '#c9d1ff', accent: '#1f2845' },
+    hacker: { bg: '#000', fg: '#00ff00', accent: '#004400' },
+    miku: { bg: '#88e0ef', fg: '#ffffff', accent: '#4a90e2' },
+    teto: { bg: '#2b001f', fg: '#ff77aa', accent: '#99004c' },
+    neru: { bg: '#1f1f1f', fg: '#ffcc00', accent: '#444400' },
+  };
+
+  function applyTheme(name) {
+    const theme = themes[name] || themes.main;
+    document.documentElement.style.setProperty('--bg', theme.bg);
+    document.documentElement.style.setProperty('--fg', theme.fg);
+    document.documentElement.style.setProperty('--accent', theme.accent);
+    document.body.style.background = theme.bg + 'aa'; // semi-transparent
+  }
+
+  // Apply saved theme on load
+  const savedTheme = localStorage.getItem('zxs-theme') || 'main';
+  applyTheme(savedTheme);
+
+  // Listen for theme changes from settings page
+  window.addEventListener('storage', e => {
+    if (e.key === 'zxs-theme') {
+      applyTheme(e.newValue);
+    }
+  });
+
+  // Optional: dispatch themeChange for immediate application if needed
+  window.addEventListener('themeChange', () => {
+    const currentTheme = localStorage.getItem('zxs-theme') || 'main';
+    applyTheme(currentTheme);
+  });
+</script>
 </body>
 </html>
-
-for this, the themes dont show up, make the bg transparent and add in the bg
