@@ -92,21 +92,22 @@
 <footer>© 2025 ZXS — All Rights Reserved</footer>
 
 <script>
-  // === THEME SYNC SYSTEM ===
+  // === THEME SYNC SYSTEM (Background only) ===
   const themes = {
-    main: { bg: '#1c1c1c', fg: '#f2f2f2', accent: '#333' },
-    space: { bg: '#0b0f25', fg: '#c9d1ff', accent: '#1f2845' },
-    hacker: { bg: '#000', fg: '#00ff00', accent: '#004400' },
-    miku: { bg: '#88e0ef', fg: '#ffffff', accent: '#4a90e2' },
-    teto: { bg: '#2b001f', fg: '#ff77aa', accent: '#99004c' },
-    neru: { bg: '#1f1f1f', fg: '#ffcc00', accent: '#444400' },
+    main: { bg: 'url(/assets/images/maintheme.png)' },
+    space: { bg: 'url(/assets/images/space.png)' },
+    hacker: { bg: 'url(/assets/images/hacker.png)' },
+    miku: { bg: 'url(/assets/images/miku.png)' },
+    teto: { bg: 'url(/assets/images/teto.png)' },
+    neru: { bg: 'url(/assets/images/neru.png)' },
   };
 
   function applyTheme(name) {
     const theme = themes[name] || themes.main;
-    document.body.style.background = theme.bg + '88'; // semi-transparent
-    document.body.style.color = theme.fg;
-    document.querySelectorAll('.theme-option').forEach(b => b.style.color = theme.fg);
+    document.body.style.backgroundImage = theme.bg;
+    document.body.style.backgroundSize = 'cover';
+    document.body.style.backgroundPosition = 'center';
+    document.body.style.backgroundRepeat = 'no-repeat';
     localStorage.setItem('zxs-theme', name);
     window.dispatchEvent(new Event('themeChange'));
   }
