@@ -355,33 +355,34 @@
 <script>
   // === THEME SYSTEM (Background only) ===
   const themes = {
-    main: { bg: 'url(/assets/images/maintheme.png)' },
-    space: { bg: 'url(/assets/images/space.png)' },
-    hacker: { bg: 'url(/assets/images/hacker.png)' },
-    miku: { bg: 'url(/assets/images/miku.png)' },
-    teto: { bg: 'url(/assets/images/teto.png)' },
-    neru: { bg: 'url(/assets/images/neru.png)' },
+    main: { bg: '/assets/images/maintheme.png' },
+    space: { bg: '/assets/images/space.png' },
+    hacker: { bg: '/assets/images/hacker.png' },
+    miku: { bg: '/assets/images/miku.png' },
+    teto: { bg: '/assets/images/teto.png' },
+    neru: { bg: '/assets/images/neru.png' },
   };
 
   function applyTheme(name) {
     const theme = themes[name] || themes.main;
-    document.body.style.backgroundImage = theme.bg;
-    document.body.style.backgroundSize = 'cover';
-    document.body.style.backgroundPosition = 'center';
-    document.body.style.backgroundRepeat = 'no-repeat';
+    document.body.style.backgroundImage = `url('${theme.bg}')`;
+    document.body.style.backgroundSize = 'cover';       // makes sure it covers the viewport
+    document.body.style.backgroundPosition = 'center';   // centers the image
+    document.body.style.backgroundRepeat = 'no-repeat';  // no tiling
+    document.body.style.backgroundAttachment = 'fixed';  // prevents scrolling
   }
 
-  // Apply saved theme on load
+  // Apply saved theme on load (defaults to main)
   const savedTheme = localStorage.getItem('zxs-theme') || 'main';
   applyTheme(savedTheme);
 
-  // Listen for theme changes from settings
+  // Listen for theme changes from settings page
   window.addEventListener('themeChange', () => {
     const updatedTheme = localStorage.getItem('zxs-theme') || 'main';
     applyTheme(updatedTheme);
   });
 
-  // Optional: listen for storage changes from other tabs
+  // Also respond to localStorage changes from other tabs
   window.addEventListener('storage', e => {
     if (e.key === 'zxs-theme') applyTheme(e.newValue || 'main');
   });
