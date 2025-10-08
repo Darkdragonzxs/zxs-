@@ -353,32 +353,32 @@
   initInfo();
 </script>
 <script>
-  // === ZXS THEME SYNC FOR HOMEPAGE ===
-  function applyThemeFromStorage() {
-    const themeJSON = localStorage.getItem('zxs-theme');
-    if (!themeJSON) return;
-
+  // Apply the theme background from settings
+  const themeJSON = localStorage.getItem('zxs-theme');
+  if (themeJSON) {
     try {
       const theme = JSON.parse(themeJSON);
-      // Apply colors to CSS variables
-      if (theme.bg) document.documentElement.style.setProperty('--bg', theme.bg);
-      if (theme.text) document.documentElement.style.setProperty('--fg', theme.text);
-      // Optional: set body background to transparent + theme bg
-      document.body.style.background = theme.bg + 'aa'; // semi-transparent
-    } catch (err) {
-      console.error('Invalid theme JSON', err);
+      document.body.style.background = theme.bg || 'transparent';
+    } catch (e) {
+      console.error('Invalid theme JSON', e);
+      document.body.style.background = 'transparent';
     }
+  } else {
+    document.body.style.background = 'transparent';
   }
 
-  // Apply theme on page load
-  applyThemeFromStorage();
-
-  // Listen for changes from settings page
+  // Update live if theme changes from settings
   window.addEventListener('storage', e => {
     if (e.key === 'zxs-theme') {
-      applyThemeFromStorage();
+      try {
+        const theme = JSON.parse(e.newValue);
+        document.body.style.background = theme.bg || 'transparent';
+      } catch {
+        document.body.style.background = 'transparent';
+      }
     }
   });
 </script>
+
 </body>
 </html>
