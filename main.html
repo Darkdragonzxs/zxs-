@@ -353,31 +353,12 @@
   initInfo();
 </script>
 <script>
-  // Apply the theme background from settings
-  const themeJSON = localStorage.getItem('zxs-theme');
-  if (themeJSON) {
-    try {
-      const theme = JSON.parse(themeJSON);
-      document.body.style.background = theme.bg || 'transparent';
-    } catch (e) {
-      console.error('Invalid theme JSON', e);
-      document.body.style.background = 'transparent';
-    }
-  } else {
-    document.body.style.background = 'transparent';
-  }
-
-  // Update live if theme changes from settings
-  window.addEventListener('storage', e => {
-    if (e.key === 'zxs-theme') {
-      try {
-        const theme = JSON.parse(e.newValue);
-        document.body.style.background = theme.bg || 'transparent';
-      } catch {
-        document.body.style.background = 'transparent';
-      }
-    }
-  });
+  // Set homepage background image
+  document.body.style.backgroundImage = "url('/assets/image/maintheme.png')";
+  document.body.style.backgroundSize = "cover";
+  document.body.style.backgroundPosition = "center";
+  document.body.style.backgroundRepeat = "no-repeat";
+  document.body.style.backgroundAttachment = "fixed"; // optional, makes it stay in place
 </script>
 
 </body>
