@@ -7,60 +7,30 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #1c1c1c;
-    --fg: #f2f2f2;
-    --accent: #333;
-  }
-
-  * { margin:0; padding:0; box-sizing:border-box; font-family:"Inter",sans-serif; color:var(--fg); }
+  * { margin:0; padding:0; box-sizing:border-box; font-family:"Inter",sans-serif; }
   html, body { height:100%; overflow:hidden; }
-
   body {
     display:flex;
     flex-direction:column;
-    background-color: #1c1c1c;
+    background-color: transparent;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
+    color: white; /* default text color */
   }
-
   header {
-    background: var(--accent);
+    background: rgba(0,0,0,0.6);
     display:flex;
     justify-content:space-between;
     align-items:center;
     padding:12px 24px;
-    border-bottom:1px solid #444;
     flex-shrink:0;
   }
-
-  .logo {
-    display:flex;
-    align-items:center;
-    gap:10px;
-    font-size:1.5em;
-    font-weight:600;
-    letter-spacing:1px;
-    cursor:pointer;
-  }
-
+  .logo { display:flex; align-items:center; gap:10px; font-size:1.5em; font-weight:600; cursor:pointer; }
   .logo img { width:30px; height:30px; border-radius:50%; }
-
   .dropdown { position:relative; }
-
-  .dropdown-btn {
-    background:none;
-    border:none;
-    color:var(--fg);
-    font-size:1.2em;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-
+  .dropdown-btn { background:none; border:none; color:inherit; font-size:1.2em; cursor:pointer; display:flex; align-items:center; gap:8px; }
   .dropdown-menu {
     position:absolute;
     top:110%;
@@ -74,133 +44,45 @@
     box-shadow:0 4px 20px rgba(0,0,0,0.4);
     z-index:1000;
   }
-
   .dropdown-menu.active { display:flex; animation: fadeIn 0.2s ease-in-out; }
   .dropdown-menu button {
-    background:none;
-    border:none;
-    text-align:left;
-    padding:12px 16px;
-    color:var(--fg);
-    font-size:1em;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    transition:background 0.2s ease;
-    cursor:pointer;
+    background:none; border:none; text-align:left; padding:12px 16px;
+    color:inherit; font-size:1em; display:flex; align-items:center; gap:10px;
+    cursor:pointer; transition: background 0.2s ease;
   }
   .dropdown-menu button:hover { background:#444; }
-
   @keyframes fadeIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
-
   #content { flex:1; overflow:hidden; position:relative; }
-
   #home {
-    height:100%;
-    width:100%;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
-    gap:20px;
+    height:100%; width:100%; display:flex; flex-direction:column; justify-content:center; align-items:center;
+    text-align:center; gap:20px;
   }
-
   #home h1 { font-size:2.8em; font-weight:700; }
-
   #splash { font-size:1.2em; opacity:0.8; margin-top:-10px; }
-
-  #home .buttons {
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:15px;
-    margin-top:20px;
-  }
-
-  #home .buttons button {
-    background: var(--accent);
-    border:none;
-    padding:12px 24px;
-    border-radius:10px;
-    font-size:1.1em;
-    cursor:pointer;
-    transition: all 0.2s ease;
-  }
-
-  #home .buttons button:hover {
-    background:#555;
-    transform:scale(1.05);
-  }
-
-  #info {
-    position:absolute;
-    bottom:20px;
-    text-align:center;
-    font-size:1em;
-    opacity:0.8;
-  }
-
-  iframe {
-    position:absolute;
-    top:0;
-    left:0;
-    border:none;
-    width:100%;
-    height:100%;
-  }
+  #home .buttons { display:flex; flex-wrap:wrap; justify-content:center; gap:15px; margin-top:20px; }
+  #home .buttons button { background: rgba(0,0,0,0.5); border:none; padding:12px 24px; border-radius:10px; font-size:1.1em; cursor:pointer; transition: all 0.2s ease; color:inherit; }
+  #home .buttons button:hover { background: rgba(0,0,0,0.7); transform:scale(1.05); }
+  #info { position:absolute; bottom:20px; text-align:center; font-size:1em; opacity:0.8; }
+  iframe { position:absolute; top:0; left:0; border:none; width:100%; height:100%; }
 </style>
 </head>
 <body>
-<header>
-  <div class="logo" id="homeBtn">
-    <img src="/assets/images/logo.png" alt="ZXS Logo">
-    <span>ZXS</span>
-  </div>
-  <div class="dropdown">
-    <button class="dropdown-btn"><i class="fa-solid fa-bars"></i> Menu</button>
-    <div class="dropdown-menu" id="menu">
-      <button data-page="home"><i class="fa-solid fa-house"></i> Home</button>
-      <button data-page="games"><i class="fa-solid fa-gamepad"></i> Games</button>
-      <button data-page="linkgen"><i class="fa-solid fa-link"></i> Link Generator</button>
-      <button data-page="partners"><i class="fa-solid fa-handshake"></i> Partners</button>
-      <button data-page="vm"><i class="fa-solid fa-server"></i> VMs</button>
-      <button data-page="settings"><i class="fa-solid fa-gear"></i> Settings</button>
+  <header>
+    <div class="logo" id="homeBtn"><img src="/assets/images/logo.png" alt="ZXS Logo"><span>ZXS</span></div>
+    <div class="dropdown">
+      <button class="dropdown-btn"><i class="fa-solid fa-bars"></i> Menu</button>
+      <div class="dropdown-menu" id="menu">
+        <button data-page="home"><i class="fa-solid fa-house"></i> Home</button>
+        <button data-page="games"><i class="fa-solid fa-gamepad"></i> Games</button>
+        <button data-page="linkgen"><i class="fa-solid fa-link"></i> Link Generator</button>
+        <button data-page="partners"><i class="fa-solid fa-handshake"></i> Partners</button>
+        <button data-page="vm"><i class="fa-solid fa-server"></i> VMs</button>
+        <button data-page="settings"><i class="fa-solid fa-gear"></i> Settings</button>
+      </div>
     </div>
-  </div>
-</header>
+  </header>
 
-<main id="content">
-  <div id="home">
-    <h1>Welcome to ZXS</h1>
-    <div id="splash">Loading splash...</div>
-    <div class="buttons">
-      <button data-page="games"><i class="fa-solid fa-gamepad"></i> Games</button>
-      <button data-page="linkgen"><i class="fa-solid fa-link"></i> Link Generator</button>
-      <button data-page="partners"><i class="fa-solid fa-handshake"></i> Partners</button>
-      <button data-page="vm"><i class="fa-solid fa-server"></i> VMs</button>
-      <button data-page="settings"><i class="fa-solid fa-gear"></i> Settings</button>
-    </div>
-    <div id="info"><span id="battery">Battery: --%</span> | <span id="time">--:--</span></div>
-  </div>
-</main>
-
-<script src="/assets/upd-log.js"></script>
-<script src="/assets/cursor.js"></script>
-<script>
-const content = document.getElementById('content');
-const menu = document.getElementById('menu');
-const dropdownBtn = document.querySelector('.dropdown-btn');
-const homeBtn = document.getElementById('homeBtn');
-
-// === SPLASH MESSAGES ===
-const splashes = ["Now THIS is elegance","also try petezah g^mes","yo: gurt | gurt: syfm","Death to my enemies","sponsored by raid shadow legends","815 monique lane","guess whos back","we (as in you and me) love zxs games","https://dsc.gg/zxsgames","okay brotato","miku miku miku","oh wait the teachers behind you","ZXS > interstellar","ZXS > shadow","ZXS > TPE","vapepor","slide to the left","+408.209 tretrigintillion cookies"];
-function randomSplash(){ const splashEl=document.getElementById("splash"); if(splashEl) splashEl.textContent=splashes[Math.floor(Math.random()*splashes.length)]; }
-
-// === PAGE LOADER ===
-const loadPage=(page)=>{
-  if(page==="home"){
-    content.innerHTML=`
+  <main id="content">
     <div id="home">
       <h1>Welcome to ZXS</h1>
       <div id="splash">Loading splash...</div>
@@ -212,86 +94,104 @@ const loadPage=(page)=>{
         <button data-page="settings"><i class="fa-solid fa-gear"></i> Settings</button>
       </div>
       <div id="info"><span id="battery">Battery: --%</span> | <span id="time">--:--</span></div>
-    </div>`;
-    randomSplash();
-    initButtons();
-    initInfo();
-    applyTheme(localStorage.getItem('zxs-theme')||'main'); // apply text color
-  } else { content.innerHTML=`<iframe src="/${page}/"></iframe>`; }
-};
+    </div>
+  </main>
 
-// === DROPDOWN ===
-function initDropdown(){
-  dropdownBtn.addEventListener('click',e=>{ e.stopPropagation(); menu.classList.toggle('active'); });
-  document.addEventListener('click',e=>{ if(!menu.contains(e.target)&&!dropdownBtn.contains(e.target)) menu.classList.remove('active'); });
-  menu.querySelectorAll('button[data-page]').forEach(btn=>{ btn.addEventListener('click',()=>{ loadPage(btn.dataset.page); menu.classList.remove('active'); }); });
-}
+<script>
+  const content = document.getElementById('content');
+  const menu = document.getElementById('menu');
+  const dropdownBtn = document.querySelector('.dropdown-btn');
+  const homeBtn = document.getElementById('homeBtn');
 
-// === BUTTONS ===
-function initButtons(){ content.querySelectorAll('[data-page]').forEach(btn=>{ btn.addEventListener('click',()=>{ loadPage(btn.dataset.page); menu.classList.remove('active'); }); }); }
+  // Splash messages
+  const splashes = ["Now THIS is elegance","also try petezah g^mes","yo: gurt | gurt: syfm",
+  "Death to my enemies","sponsored by raid shadow legends","815 monique lane",
+  "guess whos back","we (as in you and me) love zxs games","https://dsc.gg/zxsgames",
+  "okay brotato","miku miku miku","oh wait the teachers behind you",
+  "ZXS > interstellar","ZXS > shadow","ZXS > TPE","vapepor","slide to the left",
+  "+408.209 tretrigintillion cookies"];
+  function randomSplash(){ const splashEl = document.getElementById("splash"); if(splashEl) splashEl.textContent = splashes[Math.floor(Math.random()*splashes.length)]; }
 
-// === BATTERY + TIME ===
-function initInfo(){
-  const batterySpan = content.querySelector('#battery');
-  const timeSpan = content.querySelector('#time');
-
-  if(navigator.getBattery){
-    navigator.getBattery().then(battery=>{
-      const updateBattery = ()=>batterySpan.textContent=`Battery: ${Math.round(battery.level*100)}%`;
-      updateBattery();
-      battery.addEventListener('levelchange',updateBattery);
-    });
-  } else batterySpan.textContent="Battery: N/A";
-
-  const updateTime=()=>{
-    const now = new Date();
-    timeSpan.textContent=`${now.getHours().toString().padStart(2,"0")}:${now.getMinutes().toString().padStart(2,"0")}`;
+  // Themes (background + homepage text color)
+  const themes = {
+    main: { bg:'/assets/images/maintheme.png', text:'white' },
+    space: { bg:'/assets/images/space.png', text:'white' },
+    hacker:{ bg:'/assets/images/hacker.png', text:'green' },
+    miku: { bg:'/assets/images/miku.png', text:'black' },
+    teto: { bg:'/assets/images/teto.png', text:'white' },
+    neru: { bg:'/assets/images/neru.png', text:'yellow' }
   };
-  updateTime();
-  setInterval(updateTime,1000);
-}
 
-homeBtn.addEventListener('click',()=>loadPage("home"));
-homeBtn.querySelectorAll('*').forEach(el=>el.addEventListener('click',()=>loadPage("home")));
-initDropdown();
-randomSplash();
-initButtons();
-initInfo();
+  function applyTheme(name){
+    const theme = themes[name] || themes.main;
+    document.body.style.backgroundImage = `url('${theme.bg}')`;
+    document.body.style.backgroundSize = 'cover';
+    document.body.style.backgroundPosition = 'center';
+    document.body.style.backgroundRepeat = 'no-repeat';
+    document.body.style.backgroundAttachment = 'fixed';
+    // Homepage text color
+    const home = document.getElementById('home');
+    if(home) home.style.color = theme.text;
+  }
 
-// === THEME SYSTEM (Background + Homepage Text Color) ===
-const themes = {
-  main:   { bg:'/assets/images/maintheme.png', text:'white' },
-  space:  { bg:'/assets/images/space.png', text:'white' },
-  hacker: { bg:'/assets/images/hacker.png', text:'white' },
-  miku:   { bg:'/assets/images/miku.png', text:'black' },
-  teto:   { bg:'/assets/images/teto.png', text:'black' },
-  neru:   { bg:'/assets/images/neru.png', text:'black' },
-};
+  // Load saved theme
+  applyTheme(localStorage.getItem('zxs-theme') || 'main');
 
-function applyTheme(name){
-  const theme = themes[name]||themes.main;
-  document.body.style.backgroundImage=`url('${theme.bg}')`;
-  document.body.style.backgroundSize='cover';
-  document.body.style.backgroundPosition='center';
-  document.body.style.backgroundRepeat='no-repeat';
-  document.body.style.backgroundAttachment='fixed';
+  // Listen for changes from settings page
+  window.addEventListener('themeChange', ()=>{ applyTheme(localStorage.getItem('zxs-theme') || 'main'); });
+  window.addEventListener('storage', e=>{ if(e.key==='zxs-theme') applyTheme(e.newValue || 'main'); });
 
-  const home = document.getElementById('home');
-  if(home) home.style.color = theme.text;
-}
+  // Page loader
+  function loadPage(page){
+    if(page==='home'){
+      content.innerHTML = `
+      <div id="home">
+        <h1>Welcome to ZXS</h1>
+        <div id="splash">Loading splash...</div>
+        <div class="buttons">
+          <button data-page="games"><i class="fa-solid fa-gamepad"></i> Games</button>
+          <button data-page="linkgen"><i class="fa-solid fa-link"></i> Link Generator</button>
+          <button data-page="partners"><i class="fa-solid fa-handshake"></i> Partners</button>
+          <button data-page="vm"><i class="fa-solid fa-server"></i> VMs</button>
+          <button data-page="settings"><i class="fa-solid fa-gear"></i> Settings</button>
+        </div>
+        <div id="info"><span id="battery">Battery: --%</span> | <span id="time">--:--</span></div>
+      </div>`;
+      randomSplash();
+      initButtons();
+      initInfo();
+      applyTheme(localStorage.getItem('zxs-theme') || 'main'); // important
+    } else content.innerHTML = `<iframe src="/${page}/"></iframe>`;
+  }
 
-// Apply saved theme on load
-applyTheme(localStorage.getItem('zxs-theme')||'main');
+  // Dropdown
+  dropdownBtn.addEventListener('click', e=>{ e.stopPropagation(); menu.classList.toggle('active'); });
+  document.addEventListener('click', e=>{ if(!menu.contains(e.target) && !dropdownBtn.contains(e.target)) menu.classList.remove('active'); });
+  menu.querySelectorAll('button[data-page]').forEach(btn=>btn.addEventListener('click', ()=>{ loadPage(btn.dataset.page); menu.classList.remove('active'); }));
 
-// Listen for theme changes from settings
-window.addEventListener('themeChange',()=>{
-  const updatedTheme=localStorage.getItem('zxs-theme')||'main';
-  applyTheme(updatedTheme);
-});
+  // Buttons
+  function initButtons(){ content.querySelectorAll('[data-page]').forEach(btn=>btn.addEventListener('click', ()=>{ loadPage(btn.dataset.page); menu.classList.remove('active'); })); }
 
-window.addEventListener('storage',e=>{
-  if(e.key==='zxs-theme') applyTheme(e.newValue||'main');
-});
+  // Battery + Time
+  function initInfo(){
+    const batterySpan = content.querySelector('#battery');
+    const timeSpan = content.querySelector('#time');
+    if(navigator.getBattery){
+      navigator.getBattery().then(battery=>{
+        const updateBattery = ()=>batterySpan.textContent=`Battery: ${Math.round(battery.level*100)}%`;
+        updateBattery();
+        battery.addEventListener('levelchange', updateBattery);
+      });
+    } else batterySpan.textContent="Battery: N/A";
+    const updateTime=()=>{
+      const now = new Date();
+      timeSpan.textContent = `${now.getHours().toString().padStart(2,"0")}:${now.getMinutes().toString().padStart(2,"0")}`;
+    };
+    updateTime(); setInterval(updateTime,1000);
+  }
+
+  homeBtn.addEventListener('click', ()=>loadPage("home"));
+  loadPage("home");
 </script>
 </body>
 </html>
