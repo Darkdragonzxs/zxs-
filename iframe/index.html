@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZXS Iframe Viewer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(12px);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+
+  iframe {
+    width: 80vw;
+    height: 70vh;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  }
+
+  .buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 16px;
+  }
+
+  .btn {
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.2s;
+  }
+
+  .btn:hover {
+    background: rgba(255,255,255,0.2);
+  }
+</style>
+</head>
+<body>
+
+<iframe id="fileFrame" src=""></iframe>
+
+<div class="buttons">
+  <button class="btn" id="fullscreenBtn">Fullscreen</button>
+  <button class="btn" id="reloadBtn">Reload</button>
+  <button class="btn" id="downloadBtn">Download</button>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const fileUrl = urlParams.get('url');
+  const iframe = document.getElementById('fileFrame');
+
+  if(fileUrl){
+    iframe.src = fileUrl;
+  } else {
+    iframe.srcdoc = "<p style='color:white;text-align:center;'>No file URL provided.</p>";
+  }
+
+  // Fullscreen
+  document.getElementById('fullscreenBtn').addEventListener('click', () => {
+    if (iframe.requestFullscreen) {
+      iframe.requestFullscreen();
+    } else if (iframe.webkitRequestFullscreen) {
+      iframe.webkitRequestFullscreen();
+    } else if (iframe.msRequestFullscreen) {
+      iframe.msRequestFullscreen();
+    }
+  });
+
+  // Reload
+  document.getElementById('reloadBtn').addEventListener('click', () => {
+    iframe.src = iframe.src;
+  });
+
+  // Download
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    if(fileUrl){
+      const a = document.createElement('a');
+      a.href = fileUrl;
+      a.download = fileUrl.split('/').pop();
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  });
+</script>
+
+</body>
+</html>
