@@ -1,28 +1,22 @@
 (() => {
-  // Only run once page is loaded
-  window.addEventListener("DOMContentLoaded", () => {
-    // Always use a safe reference to top window
-    const topWin = window.top;
+  // Wait until everything is ready
+  window.addEventListener("load", () => {
+    try {
+      // Tell top frame to hide cursor
+      window.top.postMessage({ type: "ZXS_CURSOR", action: "hide" }, "*");
 
-    // Function to tell parent to hide cursor
-    const hideCursor = () => {
-      try {
-        topWin.postMessage({ zxsCursor: "hide" }, "*");
-      } catch (e) {}
-    };
+      // When the game loses focus or closes, tell top frame to show it again
+      const restore = () => {
+        window.top.postMessage({ type: "ZXS_CURSOR", action: "show" }, "*");
+      };
 
-    // Function to tell parent to show cursor
-    const showCursor = () => {
-      try {
-        topWin.postMessage({ zxsCursor: "show" }, "*");
-      } catch (e) {}
-    };
-
-    // Immediately hide cursor once the game loads
-    hideCursor();
-
-    // When game iframe is unloaded or loses focus → show cursor again
-    window.addEventListener("blur", showCursor);
-    window.addEventListener("beforeunload", showCursor);
+      window.addEventListener("blur", restore);
+      window.addEventListener("beforeunload", restore);
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState !== "visible") restore();
+      });
+    } catch (err) {
+      console.warn("Cursor message error:", err);
+    }
   });
 })();
