@@ -1,5 +1,14 @@
 (() => {
-  // Create cursor
+  // Hide the system cursor globally
+  const style = document.createElement("style");
+  style.textContent = `
+    * {
+      cursor: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Create custom cursor
   const cursor = document.createElement("div");
   cursor.style.cssText = `
     position: fixed;
@@ -21,7 +30,7 @@
   let currentX = targetX;
   let currentY = targetY;
 
-  // --- Smooth follow animation ---
+  // Smooth movement animation
   const animate = () => {
     currentX += (targetX - currentX) * 0.2;
     currentY += (targetY - currentY) * 0.2;
@@ -30,13 +39,13 @@
   };
   animate();
 
-  // --- Handle direct pointer movement (on main.html) ---
+  // Move on pointer events in main.html
   window.addEventListener("pointermove", e => {
     targetX = e.clientX;
     targetY = e.clientY;
   });
 
-  // --- Receive cursor coordinates from iframes ---
+  // Receive iframe cursor data
   window.addEventListener("message", (e) => {
     if (e.data && e.data.type === "cursorMove") {
       const rect = e.source.frameElement?.getBoundingClientRect?.();
