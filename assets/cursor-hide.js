@@ -1,22 +1,16 @@
-(() => {
-  // Wait until everything is ready
-  window.addEventListener("load", () => {
-    try {
-      // Tell top frame to hide cursor
-      window.top.postMessage({ type: "ZXS_CURSOR", action: "hide" }, "*");
+window.addEventListener("message", (e) => {
+  if (!e.data || e.data.type !== "ZXS_CURSOR_CONTROL") return;
 
-      // When the game loses focus or closes, tell top frame to show it again
-      const restore = () => {
-        window.top.postMessage({ type: "ZXS_CURSOR", action: "show" }, "*");
-      };
+  const cursor = document.querySelector(".custom-cursor");
+  if (!cursor) return;
 
-      window.addEventListener("blur", restore);
-      window.addEventListener("beforeunload", restore);
-      document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState !== "visible") restore();
-      });
-    } catch (err) {
-      console.warn("Cursor message error:", err);
-    }
-  });
-})();
+  if (e.data.action === "hide") {
+    cursor.style.opacity = "0";
+    cursor.style.pointerEvents = "none";
+    document.body.style.cursor = "default";
+  } else if (e.data.action === "show") {
+    cursor.style.opacity = "1";
+    cursor.style.pointerEvents = "auto";
+    document.body.style.cursor = "none";
+  }
+});
