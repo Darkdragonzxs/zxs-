@@ -1,61 +1,58 @@
 (() => {
-  // Hide the system cursor globally
-  const style = document.createElement("style");
-  style.textContent = `
-    * {
-      cursor: none !important;
-    }
-  `;
-  document.head.appendChild(style);
-
-  // Create custom cursor
   const cursor = document.createElement("div");
-  cursor.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: white;
-    mix-blend-mode: difference;
-    pointer-events: none;
-    z-index: 999999999;
-    transition: width 0.2s ease, height 0.2s ease;
-  `;
+  cursor.id = "customCursor";
+  Object.assign(cursor.style, {
+    position: "fixed",
+    top: "0px",
+    left: "0px",
+    width: "20px",
+    height: "20px",
+    borderRadius: "50%",
+    backgroundColor: "white",
+    pointerEvents: "none",
+    transform: "translate(-50%, -50%)",
+    transition: "width 0.1s, height 0.1s, background 0.1s",
+    zIndex: "9999"
+  });
   document.body.appendChild(cursor);
 
-  let targetX = window.innerWidth / 2;
-  let targetY = window.innerHeight / 2;
-  let currentX = targetX;
-  let currentY = targetY;
+  let mouseX = 0, mouseY = 0;
+  let isOverGame = false;
 
-  // Smooth movement animation
-  const animate = () => {
-    currentX += (targetX - currentX) * 0.2;
-    currentY += (targetY - currentY) * 0.2;
-    cursor.style.transform = `translate(${currentX - 9}px, ${currentY - 9}px)`;
-    requestAnimationFrame(animate);
-  };
-  animate();
-
-  // Move on pointer events in main.html
-  window.addEventListener("pointermove", e => {
-    targetX = e.clientX;
-    targetY = e.clientY;
+  document.addEventListener("mousemove", e => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
   });
 
-  // Receive iframe cursor data
-  window.addEventListener("message", (e) => {
-    if (e.data && e.data.type === "cursorMove") {
-      const rect = e.source.frameElement?.getBoundingClientRect?.();
-      if (rect) {
-        targetX = rect.left + e.data.x;
-        targetY = rect.top + e.data.y;
-      }
-    } else if (e.data && e.data.type === "cursorHover") {
-      cursor.style.width = e.data.hover ? "36px" : "18px";
-      cursor.style.height = e.data.hover ? "36px" : "18px";
-    }
+  // Hide cursor if over iframe
+  window.addEventListener("message", e => {
+    const data = e.data;
+    if (data?.type === "cursorInGame") isOverGame = true;
+  });
+
+  // Reset flag on every frame
+  function animate() {
+    // Smooth follow
+    const rect = cursor.getBoundingClientRect();
+    cursor.style.top = rect.top + (mouseY - rect.top) * 0.2 + "px";
+    cursor.style.left = rect.left + (mouseX - rect.left) * 0.2 + "px";
+
+    // Hide if inside game
+    cursor.style.display = isOverGame ? "none" : "block";
+    isOverGame = false; // reset until next message
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  // Enlarge on buttons
+  document.querySelectorAll("button, a").forEach(el => {
+    el.addEventListener("mouseenter", () => {
+      cursor.style.width = "30px";
+      cursor.style.height = "30px";
+    });
+    el.addEventListener("mouseleave", () => {
+      cursor.style.width = "20px";
+      cursor.style.height = "20px";
+    });
   });
 })();
