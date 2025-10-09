@@ -1,61 +1,28 @@
 (() => {
-  // Hide the system cursor globally
-  const style = document.createElement("style");
-  style.textContent = `
-    * {
-      cursor: none !important;
-    }
-  `;
-  document.head.appendChild(style);
+  // Only run once page is loaded
+  window.addEventListener("DOMContentLoaded", () => {
+    // Always use a safe reference to top window
+    const topWin = window.top;
 
-  // Create custom cursor
-  const cursor = document.createElement("div");
-  cursor.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: white;
-    mix-blend-mode: difference;
-    pointer-events: none;
-    z-index: 999999999;
-    transition: width 0.2s ease, height 0.2s ease;
-  `;
-  document.body.appendChild(cursor);
+    // Function to tell parent to hide cursor
+    const hideCursor = () => {
+      try {
+        topWin.postMessage({ zxsCursor: "hide" }, "*");
+      } catch (e) {}
+    };
 
-  let targetX = window.innerWidth / 2;
-  let targetY = window.innerHeight / 2;
-  let currentX = targetX;
-  let currentY = targetY;
+    // Function to tell parent to show cursor
+    const showCursor = () => {
+      try {
+        topWin.postMessage({ zxsCursor: "show" }, "*");
+      } catch (e) {}
+    };
 
-  // Smooth movement animation
-  const animate = () => {
-    currentX += (targetX - currentX) * 0.2;
-    currentY += (targetY - currentY) * 0.2;
-    cursor.style.transform = `translate(${currentX - 9}px, ${currentY - 9}px)`;
-    requestAnimationFrame(animate);
-  };
-  animate();
+    // Immediately hide cursor once the game loads
+    hideCursor();
 
-  // Move on pointer events in main.html
-  window.addEventListener("pointermove", e => {
-    targetX = e.clientX;
-    targetY = e.clientY;
-  });
-
-  // Receive iframe cursor data
-  window.addEventListener("message", (e) => {
-    if (e.data && e.data.type === "cursorMove") {
-      const rect = e.source.frameElement?.getBoundingClientRect?.();
-      if (rect) {
-        targetX = rect.left + e.data.x;
-        targetY = rect.top + e.data.y;
-      }
-    } else if (e.data && e.data.type === "cursorHover") {
-      cursor.style.width = e.data.hover ? "36px" : "18px";
-      cursor.style.height = e.data.hover ? "36px" : "18px";
-    }
+    // When game iframe is unloaded or loses focus → show cursor again
+    window.addEventListener("blur", showCursor);
+    window.addEventListener("beforeunload", showCursor);
   });
 })();
