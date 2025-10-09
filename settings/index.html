@@ -106,16 +106,22 @@
     margin-bottom: 12px;
   }
 
-  #panicUrl {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
-    font-size: 16px;
-    background: rgba(255,255,255,0.07);
-    color: white;
-    margin-bottom: 8px;
-  }
+#panicUrl {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  background: rgba(255,255,255,0.07);
+  color: white;
+  margin-bottom: 8px;
+  outline: none;
+}
+
+  #panicUrl::placeholder {
+  color: rgba(255,255,255,0.7);
+  opacity: 1; /* Ensures placeholder is visible in all browsers */
+}
 
   .panic-info { font-size: 14px; opacity: 0.8; margin-top: 6px; }
 
