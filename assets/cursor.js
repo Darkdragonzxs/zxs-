@@ -1,83 +1,73 @@
-const cursor = document.createElement("div");
-Object.assign(cursor.style, {
-  position: "fixed",
-  width: "20px",
-  height: "20px",
-  borderRadius: "50%",
-  pointerEvents: "none",
-  zIndex: "999999",
-  background: "white",
-  mixBlendMode: "difference",
-  transition: "width 0.2s ease, height 0.2s ease, transform 0.06s linear",
-});
-document.body.appendChild(cursor);
+(() => {
+  const dot = document.createElement("div");
+  dot.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: white;
+    mix-blend-mode: difference;
+    pointer-events: none;
+    z-index: 999999999;
+    transition: width 0.2s ease, height 0.2s ease;
+  `;
+  document.body.appendChild(dot);
 
-let mouseX = window.innerWidth / 2;
-let mouseY = window.innerHeight / 2;
-let currentX = mouseX;
-let currentY = mouseY;
+  let targetX = window.innerWidth / 2;
+  let targetY = window.innerHeight / 2;
+  let currentX = targetX;
+  let currentY = targetY;
 
-// === Make sure we track the cursor even if an iframe pops up ===
-window.addEventListener("mousemove", (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-  cursor.style.opacity = "1";
-});
-
-window.addEventListener("blur", () => {
-  // Keep cursor visible but unfrozen if pointer leaves main window (iframe focus)
-  cursor.style.opacity = "0.8";
-});
-
-window.addEventListener("focus", () => {
-  cursor.style.opacity = "1";
-});
-
-// Smooth follow loop
-function followCursor() {
-  currentX += (mouseX - currentX) * 0.25;
-  currentY += (mouseY - currentY) * 0.25;
-  cursor.style.transform = `translate(${currentX - 10}px, ${currentY - 10}px)`;
-  requestAnimationFrame(followCursor);
-}
-followCursor();
-
-// Hover grow effect
-function setupHoverEffects() {
-  document.querySelectorAll("button, a, input, [role='button']").forEach((el) => {
-    el.addEventListener("mouseenter", () => {
-      cursor.style.width = "36px";
-      cursor.style.height = "36px";
-    });
-    el.addEventListener("mouseleave", () => {
-      cursor.style.width = "20px";
-      cursor.style.height = "20px";
-    });
+  // --- Cursor follow system (very reliable) ---
+  window.addEventListener("pointermove", (e) => {
+    targetX = e.clientX;
+    targetY = e.clientY;
   });
-}
-setupHoverEffects();
 
-// Re-run hover effect watcher for dynamically added buttons
-new MutationObserver(setupHoverEffects).observe(document.body, {
-  childList: true,
-  subtree: true,
-});
+  // --- Animation loop ---
+  const follow = () => {
+    currentX += (targetX - currentX) * 0.2;
+    currentY += (targetY - currentY) * 0.2;
+    dot.style.transform = `translate(${currentX - 9}px, ${currentY - 9}px)`;
+    requestAnimationFrame(follow);
+  };
+  follow();
 
-// Prevent iframe popups from freezing the cursor
-function watchIframes() {
-  document.querySelectorAll("iframe, embed").forEach((frame) => {
-    frame.style.pointerEvents = "auto";
-    frame.addEventListener("mouseenter", () => {
-      // keep tracking cursor position using window mousemove
-      cursor.style.opacity = "0.9";
+  // --- Hover detection for interactive elements ---
+  const growCursor = () => {
+    dot.style.width = "36px";
+    dot.style.height = "36px";
+  };
+  const shrinkCursor = () => {
+    dot.style.width = "18px";
+    dot.style.height = "18px";
+  };
+
+  const attachHoverEvents = () => {
+    document.querySelectorAll("button, a, input, [role='button']").forEach((el) => {
+      el.removeEventListener("mouseenter", growCursor);
+      el.removeEventListener("mouseleave", shrinkCursor);
+      el.addEventListener("mouseenter", growCursor);
+      el.addEventListener("mouseleave", shrinkCursor);
     });
-    frame.addEventListener("mouseleave", () => {
-      cursor.style.opacity = "1";
-    });
+  };
+  attachHoverEvents();
+
+  // Auto-update hover events if elements are added later
+  new MutationObserver(attachHoverEvents).observe(document.body, {
+    childList: true,
+    subtree: true,
   });
-}
-watchIframes();
-new MutationObserver(watchIframes).observe(document.body, {
-  childList: true,
-  subtree: true,
-});
+
+  // --- Always visible, even if iframe pops up ---
+  // We fake a small movement every few ms so CSS keeps repainting
+  setInterval(() => {
+    dot.style.transform = `translate(${currentX - 9}px, ${currentY - 9}px)`;
+  }, 100);
+
+  // --- Handle iframe focus (prevents freeze) ---
+  window.addEventListener("blur", () => (dot.style.opacity = "1"));
+  window.addEventListener("focus", () => (dot.style.opacity = "1"));
+})();
