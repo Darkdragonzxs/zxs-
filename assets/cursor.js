@@ -1,6 +1,7 @@
 (() => {
-  const dot = document.createElement("div");
-  dot.style.cssText = `
+  // Create cursor
+  const cursor = document.createElement("div");
+  cursor.style.cssText = `
     position: fixed;
     top: 0;
     left: 0;
@@ -13,61 +14,39 @@
     z-index: 999999999;
     transition: width 0.2s ease, height 0.2s ease;
   `;
-  document.body.appendChild(dot);
+  document.body.appendChild(cursor);
 
   let targetX = window.innerWidth / 2;
   let targetY = window.innerHeight / 2;
   let currentX = targetX;
   let currentY = targetY;
 
-  // --- Cursor follow system (very reliable) ---
-  window.addEventListener("pointermove", (e) => {
+  // --- Smooth follow animation ---
+  const animate = () => {
+    currentX += (targetX - currentX) * 0.2;
+    currentY += (targetY - currentY) * 0.2;
+    cursor.style.transform = `translate(${currentX - 9}px, ${currentY - 9}px)`;
+    requestAnimationFrame(animate);
+  };
+  animate();
+
+  // --- Handle direct pointer movement (on main.html) ---
+  window.addEventListener("pointermove", e => {
     targetX = e.clientX;
     targetY = e.clientY;
   });
 
-  // --- Animation loop ---
-  const follow = () => {
-    currentX += (targetX - currentX) * 0.2;
-    currentY += (targetY - currentY) * 0.2;
-    dot.style.transform = `translate(${currentX - 9}px, ${currentY - 9}px)`;
-    requestAnimationFrame(follow);
-  };
-  follow();
-
-  // --- Hover detection for interactive elements ---
-  const growCursor = () => {
-    dot.style.width = "36px";
-    dot.style.height = "36px";
-  };
-  const shrinkCursor = () => {
-    dot.style.width = "18px";
-    dot.style.height = "18px";
-  };
-
-  const attachHoverEvents = () => {
-    document.querySelectorAll("button, a, input, [role='button']").forEach((el) => {
-      el.removeEventListener("mouseenter", growCursor);
-      el.removeEventListener("mouseleave", shrinkCursor);
-      el.addEventListener("mouseenter", growCursor);
-      el.addEventListener("mouseleave", shrinkCursor);
-    });
-  };
-  attachHoverEvents();
-
-  // Auto-update hover events if elements are added later
-  new MutationObserver(attachHoverEvents).observe(document.body, {
-    childList: true,
-    subtree: true,
+  // --- Receive cursor coordinates from iframes ---
+  window.addEventListener("message", (e) => {
+    if (e.data && e.data.type === "cursorMove") {
+      const rect = e.source.frameElement?.getBoundingClientRect?.();
+      if (rect) {
+        targetX = rect.left + e.data.x;
+        targetY = rect.top + e.data.y;
+      }
+    } else if (e.data && e.data.type === "cursorHover") {
+      cursor.style.width = e.data.hover ? "36px" : "18px";
+      cursor.style.height = e.data.hover ? "36px" : "18px";
+    }
   });
-
-  // --- Always visible, even if iframe pops up ---
-  // We fake a small movement every few ms so CSS keeps repainting
-  setInterval(() => {
-    dot.style.transform = `translate(${currentX - 9}px, ${currentY - 9}px)`;
-  }, 100);
-
-  // --- Handle iframe focus (prevents freeze) ---
-  window.addEventListener("blur", () => (dot.style.opacity = "1"));
-  window.addEventListener("focus", () => (dot.style.opacity = "1"));
 })();
