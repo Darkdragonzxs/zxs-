@@ -5,58 +5,79 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZXS Iframe Viewer</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 <style>
   body {
     margin: 0;
+    height: 100vh;
     font-family: 'Inter', sans-serif;
     background: rgba(0,0,0,0.4);
     backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: white;
+  }
+
+  .panel {
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(14px);
+    border-radius: 16px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100vh;
+    width: 85vw;
+    max-width: 1200px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
   }
 
   iframe {
-    width: 80vw;
+    width: 100%;
     height: 70vh;
     border: none;
     border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
   }
 
-  .buttons {
-    margin-top: 20px;
+  .toolbar {
+    margin-top: 16px;
     display: flex;
     gap: 16px;
   }
 
-  .btn {
-    padding: 12px 20px;
-    border-radius: 10px;
+  .toolbar button {
+    padding: 10px 16px;
+    border-radius: 12px;
     border: none;
     background: rgba(255,255,255,0.1);
     color: white;
+    font-size: 18px;
     cursor: pointer;
-    font-size: 16px;
     transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
-  .btn:hover {
+  .toolbar button:hover {
     background: rgba(255,255,255,0.2);
+  }
+
+  .toolbar button i {
+    font-size: 20px;
   }
 </style>
 </head>
 <body>
 
-<iframe id="fileFrame" src=""></iframe>
-
-<div class="buttons">
-  <button class="btn" id="fullscreenBtn">Fullscreen</button>
-  <button class="btn" id="reloadBtn">Reload</button>
-  <button class="btn" id="downloadBtn">Download</button>
+<div class="panel">
+  <iframe id="fileFrame" src=""></iframe>
+  <div class="toolbar">
+    <button id="fullscreenBtn"><i class="fas fa-expand"></i> Fullscreen</button>
+    <button id="reloadBtn"><i class="fas fa-sync-alt"></i> Reload</button>
+    <button id="downloadBtn"><i class="fas fa-download"></i> Download</button>
+  </div>
 </div>
 
 <script>
