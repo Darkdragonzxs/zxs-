@@ -1,79 +1,43 @@
 (() => {
-  const cursor = document.createElement("div");
-  cursor.style.position = "fixed";
-  cursor.style.top = "0";
-  cursor.style.left = "0";
-  cursor.style.width = "16px";
-  cursor.style.height = "16px";
-  cursor.style.borderRadius = "50%";
-  cursor.style.background = "white";
-  cursor.style.pointerEvents = "none";
-  cursor.style.zIndex = "9999";
-  cursor.style.transform = "translate(-50%, -50%)";
-  cursor.style.transition = "width 0.15s ease, height 0.15s ease, opacity 0.15s ease";
-  cursor.id = "zxs-custom-cursor";
-  document.body.appendChild(cursor);
+  // Hide system cursor for this iframe too
+  const style = document.createElement("style");
+  style.textContent = `
+    * {
+      cursor: none !important;
+    }
+  `;
+  document.head.appendChild(style);
 
-  let cursorVisible = true;
-  let lastMove = Date.now();
-  let mouseX = 0;
-  let mouseY = 0;
-
-  // Follow cursor with a small delay
-  let displayX = 0;
-  let displayY = 0;
-
-  function animate() {
-    displayX += (mouseX - displayX) * 0.25;
-    displayY += (mouseY - displayY) * 0.25;
-    cursor.style.transform = `translate(${displayX - 8}px, ${displayY - 8}px)`;
-    requestAnimationFrame(animate);
-  }
-  requestAnimationFrame(animate);
-
-  // Track movement
-  window.addEventListener("mousemove", e => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-    lastMove = Date.now();
-    if (!cursorVisible) showCursor();
+  // Send cursor movement to main page
+  window.addEventListener("pointermove", e => {
+    window.parent.postMessage({ type: "cursorMove", x: e.clientX, y: e.clientY }, "*");
   });
 
-  // Enlarge on hover
+  // Notify parent when hovering interactive elements
   document.addEventListener("mouseover", e => {
     if (e.target.closest("button, a, input, textarea, select, [role='button']")) {
-      cursor.style.width = "28px";
-      cursor.style.height = "28px";
+      window.parent.postMessage({ type: "cursorHover", hover: true }, "*");
     }
   });
-
   document.addEventListener("mouseout", e => {
     if (e.target.closest("button, a, input, textarea, select, [role='button']")) {
-      cursor.style.width = "16px";
-      cursor.style.height = "16px";
+      window.parent.postMessage({ type: "cursorHover", hover: false }, "*");
     }
   });
 
-  // Hide default cursor
-  const hideCursorStyle = document.createElement("style");
-  hideCursorStyle.textContent = `* { cursor: none !important; }`;
-  document.head.appendChild(hideCursorStyle);
-
-  // Check every 1/4 second if cursor is “lost”
-  setInterval(() => {
-    if (Date.now() - lastMove > 500) {
-      // cursor hasn’t moved for > 0.5s → hide
-      if (cursorVisible) hideCursor();
+  // Check for custom cursor every 1/10 second
+  const checkInterval = setInterval(() => {
+    const customCursor = parent.document.querySelector("#custom-cursor, .custom-cursor");
+    if (!customCursor) {
+      clearInterval(checkInterval);
+      console.warn("[cursor-helper] No custom cursor detected, removing iframe cursor script.");
+      document.removeEventListener("pointermove", () => {});
+      document.removeEventListener("mouseover", () => {});
+      document.removeEventListener("mouseout", () => {});
+      style.remove();
+      // Optional: remove the script itself
+      const thisScript = document.currentScript;
+      if (thisScript) thisScript.remove();
     }
-  }, 250);
-
-  function hideCursor() {
-    cursor.style.opacity = "0";
-    cursorVisible = false;
-  }
-
-  function showCursor() {
-    cursor.style.opacity = "1";
-    cursorVisible = true;
-  }
+  }, 100); // every 1/10th of a second
 })();
