@@ -1,5 +1,5 @@
 (function() {
-  const CURRENT_VERSION = '3.0.0';
+  const CURRENT_VERSION = '676767676767676767676767';
   const LAST_VERSION_KEY = 'zxs_last_seen_version';
   if (typeof localStorage === 'undefined') return;
   const lastSeen = localStorage.getItem(LAST_VERSION_KEY);
