@@ -1,44 +1,79 @@
 (() => {
-  // === CUSTOM CURSOR CODE ===
   const cursor = document.createElement("div");
-  cursor.className = "custom-cursor";
-  Object.assign(cursor.style, {
-    position: "fixed",
-    top: "0",
-    left: "0",
-    width: "14px",
-    height: "14px",
-    background: "white",
-    borderRadius: "50%",
-    pointerEvents: "none",
-    transform: "translate(-50%, -50%)",
-    transition: "transform 0.1s ease-out, opacity 0.2s ease",
-    zIndex: "999999"
-  });
+  cursor.style.position = "fixed";
+  cursor.style.top = "0";
+  cursor.style.left = "0";
+  cursor.style.width = "16px";
+  cursor.style.height = "16px";
+  cursor.style.borderRadius = "50%";
+  cursor.style.background = "white";
+  cursor.style.pointerEvents = "none";
+  cursor.style.zIndex = "9999";
+  cursor.style.transform = "translate(-50%, -50%)";
+  cursor.style.transition = "width 0.15s ease, height 0.15s ease, opacity 0.15s ease";
+  cursor.id = "zxs-custom-cursor";
   document.body.appendChild(cursor);
 
   let cursorVisible = true;
   let lastMove = Date.now();
+  let mouseX = 0;
+  let mouseY = 0;
 
-  const moveCursor = e => {
-    cursor.style.left = e.clientX + "px";
-    cursor.style.top = e.clientY + "px";
+  // Follow cursor with a small delay
+  let displayX = 0;
+  let displayY = 0;
+
+  function animate() {
+    displayX += (mouseX - displayX) * 0.25;
+    displayY += (mouseY - displayY) * 0.25;
+    cursor.style.transform = `translate(${displayX - 8}px, ${displayY - 8}px)`;
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  // Track movement
+  window.addEventListener("mousemove", e => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
     lastMove = Date.now();
-  };
+    if (!cursorVisible) showCursor();
+  });
 
-  window.addEventListener("mousemove", moveCursor);
-
-  // === AUTO-HIDE IF CUSTOM CURSOR DOESN’T WORK ===
-  // Wait a short time — if the cursor hasn’t moved or rendered, assume it’s in an embed (e.g., BP1.html)
-  setTimeout(() => {
-    const computed = window.getComputedStyle(cursor);
-    const visible = computed.display !== "none" && computed.opacity !== "0";
-
-    // If cursor hasn't moved or isn't visible, delete itself
-    if (Date.now() - lastMove > 1500 || !visible) {
-      console.warn("[cursor-help.js] Cursor not detected, disabling.");
-      cursor.remove();
-      window.removeEventListener("mousemove", moveCursor);
+  // Enlarge on hover
+  document.addEventListener("mouseover", e => {
+    if (e.target.closest("button, a, input, textarea, select, [role='button']")) {
+      cursor.style.width = "28px";
+      cursor.style.height = "28px";
     }
-  }, 2000);
+  });
+
+  document.addEventListener("mouseout", e => {
+    if (e.target.closest("button, a, input, textarea, select, [role='button']")) {
+      cursor.style.width = "16px";
+      cursor.style.height = "16px";
+    }
+  });
+
+  // Hide default cursor
+  const hideCursorStyle = document.createElement("style");
+  hideCursorStyle.textContent = `* { cursor: none !important; }`;
+  document.head.appendChild(hideCursorStyle);
+
+  // Check every 1/4 second if cursor is “lost”
+  setInterval(() => {
+    if (Date.now() - lastMove > 500) {
+      // cursor hasn’t moved for > 0.5s → hide
+      if (cursorVisible) hideCursor();
+    }
+  }, 250);
+
+  function hideCursor() {
+    cursor.style.opacity = "0";
+    cursorVisible = false;
+  }
+
+  function showCursor() {
+    cursor.style.opacity = "1";
+    cursorVisible = true;
+  }
 })();
