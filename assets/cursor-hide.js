@@ -1,33 +1,36 @@
 (() => {
-  // Hide system cursor on this document
-  const style = document.createElement("style");
-  style.textContent = `* { cursor: none !important; }`;
-  document.head.appendChild(style);
+  // Function to find and remove custom cursor elements
+  const removeCustomCursors = () => {
+    const possibleCursors = [
+      '.custom-cursor',
+      '.cursor',
+      '.cursor-dot',
+      '#custom-cursor',
+      '#cursor'
+    ];
 
-  // When iframes load, try to hide the cursor in them too
-  const applyToIframe = (iframe) => {
-    try {
-      const doc = iframe.contentDocument || iframe.contentWindow.document;
-      if (doc) {
-        const s = doc.createElement("style");
-        s.textContent = `* { cursor: none !important; }`;
-        doc.head.appendChild(s);
-      }
-    } catch (err) {
-      // Ignore cross-origin iframes
-    }
+    possibleCursors.forEach(selector => {
+      document.querySelectorAll(selector).forEach(el => {
+        el.remove();
+      });
+    });
   };
 
-  // Apply to all existing iframes
-  document.querySelectorAll("iframe").forEach(applyToIframe);
+  // Try immediately
+  removeCustomCursors();
 
-  // Automatically apply when new iframes appear
-  const observer = new MutationObserver((mutations) => {
-    for (const m of mutations) {
-      for (const node of m.addedNodes) {
-        if (node.tagName === "IFRAME") applyToIframe(node);
-      }
-    }
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
+  // Keep watching for newly added cursors (e.g. added later by parent scripts)
+  const observer = new MutationObserver(() => removeCustomCursors());
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+
+  // Stop any cursor movement updates (like `requestAnimationFrame`)
+  const stopCursorUpdate = () => {
+    const oldRAF = window.requestAnimationFrame;
+    window.requestAnimationFrame = (cb) => {
+      if (cb && cb.name && cb.name.toLowerCase().includes('cursor')) return 0;
+      return oldRAF(cb);
+    };
+  };
+
+  stopCursorUpdate();
 })();
