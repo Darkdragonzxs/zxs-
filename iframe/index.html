@@ -6,7 +6,7 @@
 <title>ZXS Iframe Viewer</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  <script src="/assets/cursor-help.js"></script>
+<script src="/assets/cursor-help.js"></script>
 <style>
   html, body {
     margin: 0;
@@ -32,7 +32,7 @@
     box-shadow: 0 0 40px rgba(0,0,0,0.5);
   }
 
-  iframe {
+  iframe.game-iframe {
     width: 100%;
     height: 70vh;
     border: none;
@@ -72,7 +72,8 @@
 <body>
 
 <div class="panel">
-  <iframe id="fileFrame" src=""></iframe>
+  <!-- Added class "game-iframe" -->
+  <iframe id="fileFrame" class="game-iframe" src=""></iframe>
   <div class="toolbar">
     <button id="fullscreenBtn"><i class="fas fa-expand"></i> Fullscreen</button>
     <button id="reloadBtn"><i class="fas fa-sync-alt"></i> Reload</button>
