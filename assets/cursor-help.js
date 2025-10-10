@@ -1,11 +1,27 @@
 (() => {
-  // Hide the system cursor in the iframe
+  // Hide system cursor for this iframe too
   const style = document.createElement("style");
-  style.textContent = `* { cursor: none !important; }`;
+  style.textContent = `
+    * {
+      cursor: none !important;
+    }
+  `;
   document.head.appendChild(style);
 
-  // Send cursor position and whether it's inside interactive elements
+  // Send cursor movement to main page
   window.addEventListener("pointermove", e => {
-    window.parent.postMessage({ type: "cursorInGame" }, "*");
+    window.parent.postMessage({ type: "cursorMove", x: e.clientX, y: e.clientY }, "*");
+  });
+
+  // Notify parent when hovering interactive elements
+  document.addEventListener("mouseover", e => {
+    if (e.target.closest("button, a, input, textarea, select, [role='button']")) {
+      window.parent.postMessage({ type: "cursorHover", hover: true }, "*");
+    }
+  });
+  document.addEventListener("mouseout", e => {
+    if (e.target.closest("button, a, input, textarea, select, [role='button']")) {
+      window.parent.postMessage({ type: "cursorHover", hover: false }, "*");
+    }
   });
 })();
