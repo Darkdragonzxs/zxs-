@@ -1,6 +1,6 @@
 (() => {
+  // Create custom cursor
   const cursor = document.createElement("div");
-  cursor.id = "customCursor";
   Object.assign(cursor.style, {
     position: "fixed",
     top: "0px",
@@ -11,48 +11,58 @@
     backgroundColor: "white",
     pointerEvents: "none",
     transform: "translate(-50%, -50%)",
-    transition: "width 0.1s, height 0.1s, background 0.1s",
-    zIndex: "9999"
+    transition: "width 0.1s, height 0.1s",
+    zIndex: "9999",
   });
   document.body.appendChild(cursor);
 
   let mouseX = 0, mouseY = 0;
-  let isOverGame = false;
+  let hideCursor = false;
 
+  // Track mouse
   document.addEventListener("mousemove", e => {
     mouseX = e.clientX;
     mouseY = e.clientY;
   });
 
-  // Hide cursor if over iframe
+  // Listen for messages from any iframe
   window.addEventListener("message", e => {
-    const data = e.data;
-    if (data?.type === "cursorInGame") isOverGame = true;
+    if (e.data?.type === "cursorInGame") {
+      hideCursor = true;
+    }
   });
 
-  // Reset flag on every frame
+  // Animate cursor smoothly
   function animate() {
-    // Smooth follow
     const rect = cursor.getBoundingClientRect();
     cursor.style.top = rect.top + (mouseY - rect.top) * 0.2 + "px";
     cursor.style.left = rect.left + (mouseX - rect.left) * 0.2 + "px";
 
-    // Hide if inside game
-    cursor.style.display = isOverGame ? "none" : "block";
-    isOverGame = false; // reset until next message
+    cursor.style.display = hideCursor ? "none" : "block";
+    hideCursor = false; // reset each frame
     requestAnimationFrame(animate);
   }
   animate();
 
-  // Enlarge on buttons
-  document.querySelectorAll("button, a").forEach(el => {
-    el.addEventListener("mouseenter", () => {
-      cursor.style.width = "30px";
-      cursor.style.height = "30px";
+  // Enlarge cursor on interactive elements
+  function setupHover() {
+    const elements = document.querySelectorAll("button, a, input, textarea, select");
+    elements.forEach(el => {
+      el.addEventListener("mouseenter", () => {
+        cursor.style.width = "30px";
+        cursor.style.height = "30px";
+      });
+      el.addEventListener("mouseleave", () => {
+        cursor.style.width = "20px";
+        cursor.style.height = "20px";
+      });
     });
-    el.addEventListener("mouseleave", () => {
-      cursor.style.width = "20px";
-      cursor.style.height = "20px";
-    });
-  });
+  }
+  setupHover();
+  new MutationObserver(setupHover).observe(document.body, { childList: true, subtree: true });
+
+  // Hide system cursor globally
+  const style = document.createElement("style");
+  style.textContent = `* { cursor: none !important; }`;
+  document.head.appendChild(style);
 })();
