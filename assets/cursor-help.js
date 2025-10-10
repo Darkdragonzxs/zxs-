@@ -1,3 +1,4 @@
+use this for cursor, but otherwise its perfect, and make it check every 1/10th of a second
 (() => {
   // Hide system cursor for this iframe too
   const style = document.createElement("style");
@@ -24,20 +25,4 @@
       window.parent.postMessage({ type: "cursorHover", hover: false }, "*");
     }
   });
-
-  // Check for custom cursor every 1/10 second
-  const checkInterval = setInterval(() => {
-    const customCursor = parent.document.querySelector("#custom-cursor, .custom-cursor");
-    if (!customCursor) {
-      clearInterval(checkInterval);
-      console.warn("[cursor-helper] No custom cursor detected, removing iframe cursor script.");
-      document.removeEventListener("pointermove", () => {});
-      document.removeEventListener("mouseover", () => {});
-      document.removeEventListener("mouseout", () => {});
-      style.remove();
-      // Optional: remove the script itself
-      const thisScript = document.currentScript;
-      if (thisScript) thisScript.remove();
-    }
-  }, 100); // every 1/10th of a second
 })();
