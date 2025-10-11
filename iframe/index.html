@@ -6,7 +6,7 @@
 <title>ZXS Iframe Viewer</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <script src="/assets/cursor.js" defer></script>
+<script src="/assets/cursor.js" defer></script>
 <style>
   html, body {
     margin: 0;
@@ -20,7 +20,7 @@
   }
 
   .panel {
-    background: rgba(0,0,0,0.6); /* slightly transparent */
+    background: rgba(0,0,0,0.6);
     backdrop-filter: blur(14px);
     border-radius: 16px;
     padding: 20px;
@@ -44,6 +44,8 @@
     margin-top: 16px;
     display: flex;
     gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .toolbar button {
@@ -72,12 +74,12 @@
 <body>
 
 <div class="panel">
-  <!-- Added class "game-iframe" -->
   <iframe id="fileFrame" class="game-iframe" src=""></iframe>
   <div class="toolbar">
     <button id="fullscreenBtn"><i class="fas fa-expand"></i> Fullscreen</button>
     <button id="reloadBtn"><i class="fas fa-sync-alt"></i> Reload</button>
     <button id="downloadBtn"><i class="fas fa-download"></i> Download</button>
+    <button id="backBtn"><i class="fas fa-arrow-left"></i> Back to Games</button>
   </div>
 </div>
 
@@ -114,6 +116,11 @@
       a.click();
       document.body.removeChild(a);
     }
+  });
+
+  // Back to Games
+  document.getElementById('backBtn').addEventListener('click', () => {
+    window.location.href = '/games/';
   });
 </script>
 
