@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZXS Iframe Viewer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<script src="/assets/cursor.js" defer></script>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    font-family: 'Inter', sans-serif;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .panel {
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(14px);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 85vw;
+    max-width: 1200px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+  }
+
+  iframe.game-iframe {
+    width: 100%;
+    height: 70vh;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  }
+
+  .toolbar {
+    margin-top: 16px;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .toolbar button {
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toolbar button:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  .toolbar button i {
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="panel">
+  <iframe id="fileFrame" class="game-iframe" src=""></iframe>
+  <div class="toolbar">
+    <button id="fullscreenBtn"><i class="fas fa-expand"></i> Fullscreen</button>
+    <button id="reloadBtn"><i class="fas fa-sync-alt"></i> Reload</button>
+    <button id="downloadBtn"><i class="fas fa-download"></i> Download</button>
+    <button id="backBtn"><i class="fas fa-arrow-left"></i> Exit the VM</button>
+  </div>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const fileUrl = urlParams.get('url');
+  const iframe = document.getElementById('fileFrame');
+
+  if(fileUrl){
+    iframe.src = fileUrl;
+  } else {
+    iframe.srcdoc = "<p style='color:white;text-align:center;'>No file URL provided.</p>";
+  }
+
+  // Fullscreen
+  document.getElementById('fullscreenBtn').addEventListener('click', () => {
+    if (iframe.requestFullscreen) iframe.requestFullscreen();
+    else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
+    else if (iframe.msRequestFullscreen) iframe.msRequestFullscreen();
+  });
+
+  // Reload
+  document.getElementById('reloadBtn').addEventListener('click', () => {
+    iframe.src = iframe.src;
+  });
+
+  // Download
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    if(fileUrl){
+      const a = document.createElement('a');
+      a.href = fileUrl;
+      a.download = fileUrl.split('/').pop();
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  });
+
+  // Back to Games
+  document.getElementById('backBtn').addEventListener('click', () => {
+    window.location.href = '/vm/';
+  });
+</script>
+
+</body>
+</html>
