@@ -15,23 +15,27 @@
     height: 100%;
     margin: 0;
     font-family: "Segoe UI", system-ui, sans-serif;
+    background: transparent;
+    color: var(--text);
     display: flex;
     justify-content: center;
     align-items: center;
-    background: transparent;
-    color: var(--text);
+    text-align: center; /* everything inside body is centered */
   }
 
   .card {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* center content inside the card */
+    justify-content: center;
     width: 90%;
     max-width: 460px;
     padding: 32px;
-    border-radius: 18px;
+    border-radius: 20px;
     background: var(--glass-bg);
     backdrop-filter: blur(18px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5), 0 0 12px rgba(0,255,200,0.05) inset;
-    text-align: center;
     position: relative;
     overflow: hidden;
   }
@@ -51,6 +55,10 @@
   h2 {
     margin-top: 0;
     text-shadow: 0 0 10px rgba(0,255,200,0.25);
+  }
+
+  p {
+    margin: 8px 0 20px;
   }
 
   button {
@@ -79,7 +87,6 @@
 
   .pill {
     margin-top: 16px;
-    display: inline-block;
     padding: 6px 14px;
     border-radius: 999px;
     font-size: 0.9rem;
