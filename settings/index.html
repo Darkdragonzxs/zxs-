@@ -7,28 +7,46 @@
 <link rel="icon" href="/assets/images/logo.png" type="image/png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
 <style>
+  * { box-sizing: border-box; }
+
   body {
     margin: 0;
     background: transparent;
     color: white;
     font-family: 'Inter', sans-serif;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px;
-    backdrop-filter: blur(12px);
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 40px 20px;
+    overflow-x: hidden;
   }
 
-  h1 { font-size: 32px; margin-bottom: 20px; }
-  section {
+  /* === GLASS PANEL === */
+  .glass-panel {
     width: 100%;
-    max-width: 520px;
-    background: rgba(0, 0, 0, 0.45);
+    max-width: 600px;
+    background: rgba(128,128,128,0.35); /* semi-transparent grey */
+    border-radius: 20px;
+    padding: 30px 25px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.3);
+    backdrop-filter: blur(14px);
+  }
+
+  .glass-panel h1 {
+    font-size: 32px;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  section {
+    background: rgba(0,0,0,0.25);
     border-radius: 16px;
     padding: 20px;
     margin-bottom: 24px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
   }
+
   h2 {
     font-size: 22px;
     margin-bottom: 16px;
@@ -37,11 +55,7 @@
   }
 
   /* === CUSTOM DROPDOWN === */
-  .dropdown {
-    position: relative;
-    user-select: none;
-    margin-bottom: 16px;
-  }
+  .dropdown { position: relative; user-select: none; margin-bottom: 16px; }
 
   .dropdown-btn {
     width: 100%;
@@ -58,11 +72,7 @@
     align-items: center;
   }
 
-  .dropdown-btn::after {
-    content: '\25BC';
-    font-size: 0.8em;
-    margin-left: 10px;
-  }
+  .dropdown-btn::after { content: '\25BC'; font-size: 0.8em; margin-left: 10px; }
 
   .dropdown-menu {
     position: absolute;
@@ -71,7 +81,6 @@
     width: 100%;
     background: rgba(0,0,0,0.85);
     border-radius: 10px;
-    overflow: hidden;
     display: none;
     flex-direction: column;
     z-index: 100;
@@ -80,102 +89,73 @@
   }
 
   .dropdown-menu.active { display: flex; }
-
-  .dropdown-menu div {
-    padding: 12px;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
+  .dropdown-menu div { padding: 12px; cursor: pointer; transition: background 0.2s; }
   .dropdown-menu div:hover { background: rgba(255,255,255,0.1); }
 
-  /* === PANIC KEY SECTION === */
-  #panic p {
-    margin-bottom: 12px;
-  }
+  /* === PANIC KEY === */
+  #panic p { margin-bottom: 12px; }
 
-  #setPanicKey {
+  #setPanicKey, #panicUrl {
     width: 100%;
     padding: 12px;
     border-radius: 10px;
     border: none;
     background: rgba(255,255,255,0.05);
     color: white;
-    cursor: pointer;
     font-size: 16px;
     margin-bottom: 12px;
+    display: block;
   }
 
-#panicUrl {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  font-size: 16px;
-  background: rgba(255,255,255,0.07);
-  color: white;
-  margin-bottom: 8px;
-  outline: none;
-}
-
-  #panicUrl::placeholder {
-  color: rgba(255,255,255,0.7);
-  opacity: 1; /* Ensures placeholder is visible in all browsers */
-}
+  #panicUrl::placeholder { color: rgba(255,255,255,0.7); opacity:1; }
 
   .panic-info { font-size: 14px; opacity: 0.8; margin-top: 6px; }
 
-  footer { margin-top: 40px; opacity: 0.6; font-size: 14px; }
+  footer { margin-top: 20px; opacity: 0.6; font-size: 14px; text-align: center; }
 </style>
 </head>
 <body>
 
-<h1>Settings</h1>
+<div class="glass-panel">
 
-<section id="credits">
-  <h2>Credits</h2>
-  <p>Created by <b>ZXS</b>. built with <3</p>
-  <b>thanks to truffled, gn-math, and 98corbins for the ports!</b>
-</section>
+  <h1>Settings</h1>
 
-<section id="themes">
-  <h2>Choose Theme</h2>
-  <div class="dropdown">
-    <button class="dropdown-btn" id="themeBtn">Main Theme</button>
-    <div class="dropdown-menu" id="themeMenu">
-      <div data-theme="main">Main Theme</div>
-      <div data-theme="space">Space</div>
-      <div data-theme="hacker">Hacker</div>
-      <div data-theme="miku">Miku</div>
-      <div data-theme="teto">Teto</div>
-      <div data-theme="neru">Neru</div>
+  <section id="credits">
+    <h2>Credits</h2>
+    <p>Created by <b>ZXS</b>. built with &lt;3</p>
+    <b>Thanks to truffled, gn-math, and 98corbins for the ports!</b>
+  </section>
+
+  <section id="themes">
+    <h2>Choose Theme</h2>
+    <div class="dropdown">
+      <button class="dropdown-btn" id="themeBtn">Main Theme</button>
+      <div class="dropdown-menu" id="themeMenu">
+        <div data-theme="main">Main Theme</div>
+        <div data-theme="space">Space</div>
+        <div data-theme="hacker">Hacker</div>
+        <div data-theme="miku">Miku</div>
+        <div data-theme="teto">Teto</div>
+        <div data-theme="neru">Neru</div>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section id="panic">
-  <h2>Panic Key</h2>
-  <p>Press the button below, then press a key to set your panic key. You can also change the URL it redirects to.</p>
-  <button id="setPanicKey">Set Panic Key</button>
-  <input id="panicUrl" placeholder="Enter Panic URL (e.g. https://google.com)">
-  <div class="panic-info" id="panicDisplay">Current Panic Key: <b>None</b></div>
-</section>
+  <section id="panic">
+    <h2>Panic Key</h2>
+    <p>Press the button below, then press a key to set your panic key. You can also change the URL it redirects to.</p>
+    <button id="setPanicKey">Set Panic Key</button>
+    <input id="panicUrl" placeholder="Enter Panic URL (e.g. https://google.com)">
+    <div class="panic-info" id="panicDisplay">Current Panic Key: <b>None</b></div>
+  </section>
 
-<footer>wassup dude</footer>
+  <footer>wassup dude</footer>
 
-<script src="/assets/cursor-help.js"></script>
-
+</div>
+<script src="/assets/cursor-help.js" defer></script>
 <script>
   // === THEME SYSTEM ===
-  const themes = {
-    main: { bg: 'none' },
-    space: { bg: 'none' },
-    hacker: { bg: 'none' },
-    miku: { bg: 'none' },
-    teto: { bg: 'none' },
-    neru: { bg: 'none' },
-  };
-
+  const themes = { main:{bg:'none'}, space:{bg:'none'}, hacker:{bg:'none'}, miku:{bg:'none'}, teto:{bg:'none'}, neru:{bg:'none'} };
   const themeBtn = document.getElementById('themeBtn');
   const themeMenu = document.getElementById('themeMenu');
 
@@ -189,10 +169,8 @@
     themeBtn.textContent = name.charAt(0).toUpperCase() + name.slice(1) + ' Theme';
   }
 
-  // Dropdown toggle
   themeBtn.addEventListener('click', () => themeMenu.classList.toggle('active'));
 
-  // Theme selection
   themeMenu.querySelectorAll('div').forEach(item=>{
     item.addEventListener('click', ()=>{
       applyTheme(item.dataset.theme);
@@ -200,16 +178,13 @@
     });
   });
 
-  // Close dropdown if clicking outside
   document.addEventListener('click', e=>{
     if(!themeMenu.contains(e.target) && !themeBtn.contains(e.target)){
       themeMenu.classList.remove('active');
     }
   });
 
-  // Load saved theme or default to main
-  const savedTheme = localStorage.getItem('zxs-theme') || 'main';
-  applyTheme(savedTheme);
+  applyTheme(localStorage.getItem('zxs-theme') || 'main');
 
   // === PANIC KEY SYSTEM ===
   const panicButton = document.getElementById('setPanicKey');
@@ -217,11 +192,10 @@
   const panicDisplay = document.getElementById('panicDisplay');
   let awaitingKey = false;
 
-  // Load saved values
   const savedKey = localStorage.getItem('panicKey');
   const savedUrl = localStorage.getItem('panicUrl');
-  if (savedKey) panicDisplay.innerHTML = `Current Panic Key: <b>${savedKey}</b>`;
-  if (savedUrl) panicUrlInput.value = savedUrl;
+  if(savedKey) panicDisplay.innerHTML = `Current Panic Key: <b>${savedKey}</b>`;
+  if(savedUrl) panicUrlInput.value = savedUrl;
 
   panicButton.addEventListener('click', () => {
     awaitingKey = true;
@@ -229,22 +203,20 @@
   });
 
   document.addEventListener('keydown', e => {
-    if (awaitingKey) {
+    if(awaitingKey){
       localStorage.setItem('panicKey', e.key);
       panicDisplay.innerHTML = `Current Panic Key: <b>${e.key}</b>`;
       awaitingKey = false;
     } else {
       const panicKey = localStorage.getItem('panicKey');
       const panicUrl = localStorage.getItem('panicUrl') || 'https://google.com';
-      if (panicKey && e.key.toLowerCase() === panicKey.toLowerCase()) {
+      if(panicKey && e.key.toLowerCase() === panicKey.toLowerCase()){
         window.location.href = panicUrl;
       }
     }
   });
 
-  panicUrlInput.addEventListener('input', () => {
-    localStorage.setItem('panicUrl', panicUrlInput.value);
-  });
+  panicUrlInput.addEventListener('input', ()=> localStorage.setItem('panicUrl', panicUrlInput.value));
 </script>
 
 </body>
