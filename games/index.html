@@ -188,6 +188,42 @@
 
   renderGames();
 </script>
+<script>
+  const gamesGrid = document.getElementById('gamesGrid');
+  const searchBar = document.getElementById('searchBar');
+
+  function renderGames(filter="") {
+    gamesGrid.innerHTML = "";
+    gamesList
+      .filter(game => game.name.toLowerCase().includes(filter.toLowerCase()))
+      .forEach(game => {
+        const card = document.createElement('div');
+        card.classList.add('game-card');
+        card.innerHTML = `
+          <img src="${game.image}" alt="${game.name}">
+          <div class="game-overlay"><span>${game.name}</span></div>
+        `;
+
+        card.addEventListener('click', () => {
+          // Hide custom cursor
+          const customCursor = document.querySelector('.custom-cursor'); // adjust class if needed
+          if (customCursor) customCursor.style.display = 'none';
+
+          // Restore system cursor
+          document.body.style.cursor = 'default';
+
+          // Go to game
+          window.location.href = game.url;
+        });
+
+        gamesGrid.appendChild(card);
+      });
+  }
+
+  searchBar.addEventListener('input', e => renderGames(e.target.value));
+
+  renderGames();
+</script>
 
 </body>
 </html>
