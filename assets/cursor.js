@@ -6,11 +6,12 @@
   cursor.style.width = "16px";
   cursor.style.height = "16px";
   cursor.style.borderRadius = "50%";
-  cursor.style.background = "black"; // reversed color
+  cursor.style.background = "white"; // base color, will invert automatically
   cursor.style.pointerEvents = "none";
   cursor.style.zIndex = "9999";
   cursor.style.transform = "translate(-50%, -50%)";
   cursor.style.transition = "width 0.15s ease, height 0.15s ease, opacity 0.15s ease";
+  cursor.style.mixBlendMode = "difference"; // key to automatic color inversion
   cursor.id = "zxs-custom-cursor";
   document.body.appendChild(cursor);
 
@@ -62,7 +63,6 @@
   // Check every 1/4 second if cursor is “lost”
   setInterval(() => {
     if (Date.now() - lastMove > 500) {
-      // cursor hasn’t moved for > 0.5s → hide
       if (cursorVisible) hideCursor();
     }
   }, 250);
