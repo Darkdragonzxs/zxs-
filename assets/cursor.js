@@ -6,7 +6,7 @@
   cursor.style.width = "16px";
   cursor.style.height = "16px";
   cursor.style.borderRadius = "50%";
-  cursor.style.background = "white";
+  cursor.style.background = "black"; // reversed color
   cursor.style.pointerEvents = "none";
   cursor.style.zIndex = "9999";
   cursor.style.transform = "translate(-50%, -50%)";
