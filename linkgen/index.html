@@ -57,41 +57,54 @@
 <body>
   <div class="card">
     <h2>🎁 Daily Link Dispenser</h2>
-    <p>Get one random link per day from the hidden list.</p>
+    <p>Get one random link per day from the secret list.</p>
     <button id="dispenseBtn">Get Today’s Link</button>
     <div class="pill" id="status">Available today</div>
     <div class="link" id="output"></div>
   </div>
 
 <script>
-(async () => {
+(() => {
+  const links = [
+    "https://edu.academyedu.edu.pl",
+    "https://eugsd.instructure.site",
+    "https://not.blocked.blocksi.online",
+    "https://support.itaafticagroup.com",
+    "https://win.laifu.asia",
+    "https://software.linexedu.eu",
+    "https://tutorial.medscience.cl",
+    "https://zxs-is.shit.vc",
+    "https://zxs.skibiditoi.lat",
+    "https://uymtnhbgrvfefebgrnhtmjytnhmyjtnhbrgevf.centrodiagnosticogenetico.com",
+    "https://search.installgentoo.org",
+    "https://juliet.randomsubdomain.org",
+    "https://view.tyden.name",
+    "https://equation.vilathea.ro",
+    "https://reserve.burgerbar.cl/",
+    "https://im.hardsoft.nu/",
+    "https://about.wroth.org",
+    "https://jumped.jasrama.com/",
+    "https://dtme.kawaiiarts.com/",
+    "https://birb.death.cl",
+    "https://underage.sortadrunk.org",
+    "https://donald-j.trumpetx.net",
+    "https://serve.churchmissionary.team",
+    "https://gumi.lat",
+    "https://neru.lat"
+  ];
+
   const STORAGE_KEY = 'daily-link-v1';
   const btn = document.getElementById('dispenseBtn');
   const statusEl = document.getElementById('status');
   const output = document.getElementById('output');
 
-  // Get today's date in YYYY-MM-DD
   const today = () => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   };
 
-  // Load state
   let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 
-  // Fetch links from /assets/links.json
-  let links = [];
-  try {
-    const res = await fetch('/assets/links.json', { cache: 'no-store' });
-    const data = await res.json();
-    links = Array.isArray(data) ? data : (data.links || []);
-  } catch (err) {
-    output.textContent = '⚠️ Could not load /assets/links.json';
-    btn.disabled = true;
-    return;
-  }
-
-  // If link already claimed today
   if (state.date === today() && state.link) {
     showLink(state.link, true);
     return;
