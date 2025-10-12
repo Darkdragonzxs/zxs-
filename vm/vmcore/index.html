@@ -27,14 +27,15 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 85vw;
-    max-width: 1200px;
+    width: 95vw;
+    max-width: 1600px;
+    height: 90vh;
     box-shadow: 0 0 40px rgba(0,0,0,0.5);
   }
 
   iframe.game-iframe {
     width: 100%;
-    height: 70vh;
+    height: calc(100% - 80px); /* Leave space for toolbar */
     border: none;
     border-radius: 12px;
     box-shadow: 0 0 20px rgba(0,0,0,0.4);
@@ -74,7 +75,7 @@
 <body>
 
 <div class="panel">
-  <iframe id="fileFrame" class="game-iframe" src=""></iframe>
+  <iframe id="fileFrame" class="game-iframe" src="" tabindex="0"></iframe>
   <div class="toolbar">
     <button id="fullscreenBtn"><i class="fas fa-expand"></i> Fullscreen</button>
     <button id="reloadBtn"><i class="fas fa-sync-alt"></i> Reload</button>
@@ -93,6 +94,16 @@
   } else {
     iframe.srcdoc = "<p style='color:white;text-align:center;'>No file URL provided.</p>";
   }
+
+  // Ensure iframe always receives keyboard focus
+  iframe.addEventListener('load', () => {
+    iframe.contentWindow.focus();
+  });
+
+  // Also focus iframe on click
+  iframe.addEventListener('click', () => {
+    iframe.contentWindow.focus();
+  });
 
   // Fullscreen
   document.getElementById('fullscreenBtn').addEventListener('click', () => {
