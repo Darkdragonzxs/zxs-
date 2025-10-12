@@ -1,30 +1,54 @@
-<script>
-  window.addEventListener('load', () => {
-    // 1️⃣ Open a new tab with about:blank and embed /main.html
-    const newTab = window.open('about:blank', '_blank');
-    if (newTab) {
-      newTab.document.write(`
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>ZXS</title>
-          <link rel="icon" href="/assets/images/logo.png" type="image/png">
-          <style>
-            html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
-            iframe { border: none; width: 100%; height: 100%; }
-          </style>
-        </head>
-        <body>
-          <iframe src="/main.html"></iframe>
-        </body>
-        </html>
-      `);
-      newTab.document.close();
-    }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZXS WIP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at top left, #0a0f12 0%, #050505 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #e8f9f6;
+    text-align: center;
+  }
 
-    // 2️⃣ Redirect the current tab to Google
-    window.location.href = 'https://www.google.com/search?q=google+classroom';
-  });
-</script>
+  .wip-panel {
+    background: rgba(25,25,25,0.45);
+    backdrop-filter: blur(18px) saturate(180%);
+    border-radius: 20px;
+    padding: 60px 40px;
+    max-width: 600px;
+    box-shadow:
+      inset 0 0 15px rgba(255,255,255,0.04),
+      0 8px 32px rgba(0,0,0,0.6),
+      0 0 25px rgba(0,255,200,0.05);
+    position: relative;
+  }
+
+  .wip-panel h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px rgba(0,255,200,0.25);
+  }
+
+  .wip-panel p {
+    font-size: 1.2rem;
+    opacity: 0.85;
+  }
+</style>
+</head>
+<body>
+
+<div class="wip-panel">
+  <h1>🚧 ZXS V3 is currently in development!!1</h1>
+  <p>We're busy creating the dream experience for all!<br>https://dsc.gg/zxsgames</p>
+</div>
+
+</body>
+</html>
