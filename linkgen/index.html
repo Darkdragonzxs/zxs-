@@ -4,14 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Daily Link Dispenser</title>
-      <script src="/assets/cursor.js" defer></script>
 <style>
   :root {
     --accent: #00ffc8;
     --text: #e6eef6;
     --glass-bg: rgba(50, 50, 50, 0.45);
   }
-
   html, body {
     height: 100%;
     margin: 0;
@@ -21,13 +19,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    text-align: center; /* everything inside body is centered */
+    text-align: center;
   }
-
   .card {
     display: flex;
     flex-direction: column;
-    align-items: center; /* center content inside the card */
+    align-items: center;
     justify-content: center;
     width: 90%;
     max-width: 460px;
@@ -40,28 +37,8 @@
     position: relative;
     overflow: hidden;
   }
-
-  .card::before {
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 60%);
-    transform: rotate(-15deg);
-    pointer-events: none;
-  }
-
-  h2 {
-    margin-top: 0;
-    text-shadow: 0 0 10px rgba(0,255,200,0.25);
-  }
-
-  p {
-    margin: 8px 0 20px;
-  }
-
+  h2 { margin-top: 0; text-shadow: 0 0 10px rgba(0,255,200,0.25); }
+  p { margin: 8px 0 20px; }
   button {
     margin-top: 14px;
     padding: 12px 24px;
@@ -73,55 +50,22 @@
     cursor: pointer;
     transition: all 0.25s ease;
   }
-
-  button:hover {
-    background: rgba(35,35,35,0.95);
-    box-shadow: 0 0 12px rgba(0,255,200,0.25);
-    color: #7affef;
-  }
-
-  button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-
-  .pill {
-    margin-top: 16px;
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-size: 0.9rem;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: var(--accent);
-  }
-
-  .link {
-    margin-top: 16px;
-    word-break: break-all;
-    font-size: 0.95rem;
-  }
-
-  a {
-    color: var(--accent);
-    text-decoration: none;
-    border-bottom: 1px dashed rgba(0,255,200,0.3);
-    transition: color 0.2s ease;
-  }
-
-  a:hover {
-    color: #7affef;
-  }
+  button:hover { background: rgba(35,35,35,0.95); box-shadow: 0 0 12px rgba(0,255,200,0.25); color: #7affef; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+  .pill { margin-top: 16px; padding: 6px 14px; border-radius: 999px; font-size: 0.9rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: var(--accent); }
+  .link { margin-top: 16px; word-break: break-all; font-size: 0.95rem; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed rgba(0,255,200,0.3); transition: color 0.2s ease; }
+  a:hover { color: #7affef; }
 </style>
 </head>
 <body>
-  <div class="card">
-    <h2>💎 Daily Link Dispenser</h2>
-    <p>Receive one secret link per day.</p>
-    <button id="dispenseBtn">Get Today’s Link</button>
-    <div class="pill" id="status">Available today</div>
-    <div class="link" id="output"></div>
-  </div>
+<div class="card">
+  <h2>💎 Daily Link Dispenser</h2>
+  <p>Receive one secret link per day.</p>
+  <button id="dispenseBtn">Get Today’s Link</button>
+  <div class="pill" id="status">Available today</div>
+  <div class="link" id="output"></div>
+</div>
 
 <script>
 (() => {
@@ -130,59 +74,59 @@
     "https://eugsd.instructure.site",
     "https://not.blocked.blocksi.online",
     "https://support.itaafticagroup.com",
-    "https://win.laifu.asia",
-    "https://software.linexedu.eu",
-    "https://tutorial.medscience.cl",
-    "https://zxs-is.shit.vc",
-    "https://zxs.skibiditoi.lat",
-    "https://uymtnhbgrvfefebgrnhtmjytnhmyjtnhbrgevf.centrodiagnosticogenetico.com",
-    "https://search.installgentoo.org",
-    "https://view.tyden.name",
-    "https://equation.vilathea.ro",
-    "https://reserve.burgerbar.cl/",
-    "https://im.hardsoft.nu/",
-    "https://about.wroth.org",
-    "https://jumped.jasrama.com/",
-    "https://dtme.kawaiiarts.com/",
-    "https://birb.death.cl",
-    "https://underage.sortadrunk.org",
-    "https://donald-j.trumpetx.net",
-    "https://serve.churchmissionary.team",
-    "https://gumi.lat",
-    "https://neru.lat"
+    "https://win.laifu.asia"
   ];
 
-  const STORAGE_KEY = 'daily-link-v1';
   const btn = document.getElementById('dispenseBtn');
   const statusEl = document.getElementById('status');
   const output = document.getElementById('output');
 
-  const today = () => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  };
-
-  let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-
-  if (state.date === today() && state.link) {
-    showLink(state.link, true);
-    return;
+  function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^| )'+name+'=([^;]+)'));
+    return match ? decodeURIComponent(match[2]) : null;
   }
 
-  btn.onclick = () => {
-    const randomLink = links[Math.floor(Math.random() * links.length)];
-    state = { date: today(), link: randomLink };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    showLink(randomLink, true);
-  };
+  function setCookie(name, value, expires) {
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires.toUTCString()}; path=/`;
+  }
 
-  function showLink(link, disable) {
-    output.innerHTML = `<a href="${link}" target="_blank">${link}</a>`;
-    if (disable) {
+  function hashLink(link, date) {
+    // simple hash function
+    let str = link + date, hash = 0;
+    for (let i=0; i<str.length; i++) hash = (hash << 5) - hash + str.charCodeAt(i);
+    return hash.toString();
+  }
+
+  function todayString() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  const today = todayString();
+  const cookie = getCookie('dailyLink');
+
+  if (cookie) {
+    // Find which link matches the hash
+    const matched = links.find(l => hashLink(l, today) === cookie);
+    if (matched) {
+      output.innerHTML = `<a href="${matched}" target="_blank">${matched}</a>`;
       btn.disabled = true;
       statusEl.textContent = 'Already claimed today';
     }
   }
+
+  btn.onclick = () => {
+    const randomLink = links[Math.floor(Math.random() * links.length)];
+    const hash = hashLink(randomLink, today);
+
+    const expiry = new Date();
+    expiry.setHours(23,59,59,999); // expires end of day
+    setCookie('dailyLink', hash, expiry);
+
+    output.innerHTML = `<a href="${randomLink}" target="_blank">${randomLink}</a>`;
+    btn.disabled = true;
+    statusEl.textContent = 'Already claimed today';
+  };
 })();
 </script>
 </body>
