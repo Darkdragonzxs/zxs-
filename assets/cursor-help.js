@@ -1,10 +1,10 @@
 (() => {
-  // Hide system cursor in this iframe
+  // Hide system cursor inside iframe
   const style = document.createElement("style");
   style.textContent = `* { cursor: none !important; }`;
   document.head.appendChild(style);
 
-  // Send cursor movement to main page
+  // Send pointer movement to parent
   window.addEventListener("pointermove", e => {
     window.parent.postMessage({ type: "cursorMove", x: e.clientX, y: e.clientY }, "*");
   });
