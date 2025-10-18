@@ -37,28 +37,12 @@
     if (!cursorVisible) showCursor();
   }
 
-  function setHover(hovering) {
-    cursor.style.width = hovering ? "28px" : "16px";
-    cursor.style.height = hovering ? "28px" : "16px";
-  }
-
-  // Track main page mouse
   window.addEventListener("mousemove", e => updateCursor(e.clientX, e.clientY));
 
-  document.addEventListener("mouseover", e => {
-    if (e.target.closest("button, a, input, textarea, select, [role='button']")) setHover(true);
-  });
-
-  document.addEventListener("mouseout", e => {
-    if (e.target.closest("button, a, input, textarea, select, [role='button']")) setHover(false);
-  });
-
-  // Listen for iframe messages
   window.addEventListener("message", e => {
     const data = e.data;
     if (!data || typeof data !== "object") return;
 
-    // Find which iframe sent the message
     const iframe = Array.from(document.querySelectorAll("iframe")).find(f => f.contentWindow === e.source);
     let offsetX = 0, offsetY = 0;
     if (iframe) {
@@ -68,15 +52,12 @@
     }
 
     if (data.type === "cursorMove") updateCursor(data.x + offsetX, data.y + offsetY);
-    if (data.type === "cursorHover") setHover(data.hover);
   });
 
-  // Hide default cursor
   const hideCursorStyle = document.createElement("style");
   hideCursorStyle.textContent = `* { cursor: none !important; }`;
   document.head.appendChild(hideCursorStyle);
 
-  // Hide if idle
   setInterval(() => {
     if (Date.now() - lastMove > 500 && cursorVisible) hideCursor();
   }, 250);
