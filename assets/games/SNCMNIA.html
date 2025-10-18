@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sonic Mania</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+  }
+  #gameFrame {
+    width: 100vw;
+    height: 100vh;
+    border: none;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<iframe id="gameFrame" src="/proxy/sonicmania/RSDKv5.html"></iframe>
+
+<script>
+  // Show disclaimer
+  const disclaimer = "⚠️ Disclaimer: When it says press any button, instead press esc and go to level select to avoid it from crashing! TYSM <3!";
+  
+  if (confirm(disclaimer)) {
+    // Show the iframe fullscreen
+    document.getElementById('gameFrame').style.display = 'block';
+  } else {
+    // Optional: redirect or show a message if user cancels
+    document.body.innerHTML = "<p style='color:white;text-align:center;margin-top:20%;'>bruh just press ok</p>";
+  }
+</script>
+
+</body>
+</html>
