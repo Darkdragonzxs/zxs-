@@ -6,7 +6,7 @@
 <title>ZXS Settings</title>
 <link rel="icon" href="/assets/images/logo.png" type="image/png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
-   <script src="/assets/cursor.js" defer></script>
+<script src="/assets/cursor.js" defer></script>
 <style>
   * { box-sizing: border-box; }
 
@@ -93,25 +93,6 @@
   .dropdown-menu div { padding: 12px; cursor: pointer; transition: background 0.2s; }
   .dropdown-menu div:hover { background: rgba(255,255,255,0.1); }
 
-  /* === PANIC KEY === */
-  #panic p { margin-bottom: 12px; }
-
-  #setPanicKey, #panicUrl {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
-    background: rgba(255,255,255,0.05);
-    color: white;
-    font-size: 16px;
-    margin-bottom: 12px;
-    display: block;
-  }
-
-  #panicUrl::placeholder { color: rgba(255,255,255,0.7); opacity:1; }
-
-  .panic-info { font-size: 14px; opacity: 0.8; margin-top: 6px; }
-
   footer { margin-top: 20px; opacity: 0.6; font-size: 14px; text-align: center; }
 </style>
 </head>
@@ -142,17 +123,10 @@
     </div>
   </section>
 
-  <section id="panic">
-    <h2>Panic Key</h2>
-    <p>Press the button below, then press a key to set your panic key. You can also change the URL it redirects to.</p>
-    <button id="setPanicKey">Set Panic Key</button>
-    <input id="panicUrl" placeholder="Enter Panic URL (e.g. https://google.com)">
-    <div class="panic-info" id="panicDisplay">Current Panic Key: <b>None</b></div>
-  </section>
-
   <footer>wassup dude</footer>
 
 </div>
+
 <script src="/assets/cursor-help.js" defer></script>
 <script>
   // === THEME SYSTEM ===
@@ -186,38 +160,6 @@
   });
 
   applyTheme(localStorage.getItem('zxs-theme') || 'main');
-
-  // === PANIC KEY SYSTEM ===
-  const panicButton = document.getElementById('setPanicKey');
-  const panicUrlInput = document.getElementById('panicUrl');
-  const panicDisplay = document.getElementById('panicDisplay');
-  let awaitingKey = false;
-
-  const savedKey = localStorage.getItem('panicKey');
-  const savedUrl = localStorage.getItem('panicUrl');
-  if(savedKey) panicDisplay.innerHTML = `Current Panic Key: <b>${savedKey}</b>`;
-  if(savedUrl) panicUrlInput.value = savedUrl;
-
-  panicButton.addEventListener('click', () => {
-    awaitingKey = true;
-    panicDisplay.innerHTML = "Press any key...";
-  });
-
-  document.addEventListener('keydown', e => {
-    if(awaitingKey){
-      localStorage.setItem('panicKey', e.key);
-      panicDisplay.innerHTML = `Current Panic Key: <b>${e.key}</b>`;
-      awaitingKey = false;
-    } else {
-      const panicKey = localStorage.getItem('panicKey');
-      const panicUrl = localStorage.getItem('panicUrl') || 'https://google.com';
-      if(panicKey && e.key.toLowerCase() === panicKey.toLowerCase()){
-        window.location.href = panicUrl;
-      }
-    }
-  });
-
-  panicUrlInput.addEventListener('input', ()=> localStorage.setItem('panicUrl', panicUrlInput.value));
 </script>
 
 </body>
