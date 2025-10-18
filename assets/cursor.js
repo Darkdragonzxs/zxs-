@@ -30,7 +30,6 @@
   }
   requestAnimationFrame(animate);
 
-  // Track movement
   function updateCursor(x, y) {
     mouseX = x;
     mouseY = y;
@@ -38,31 +37,37 @@
     if (!cursorVisible) showCursor();
   }
 
-  window.addEventListener("mousemove", e => updateCursor(e.clientX, e.clientY));
-
-  // Enlarge on hover
   function setHover(hovering) {
     cursor.style.width = hovering ? "28px" : "16px";
     cursor.style.height = hovering ? "28px" : "16px";
   }
 
+  // Track main page mouse
+  window.addEventListener("mousemove", e => updateCursor(e.clientX, e.clientY));
+
   document.addEventListener("mouseover", e => {
-    if (e.target.closest("button, a, input, textarea, select, [role='button']")) {
-      setHover(true);
-    }
+    if (e.target.closest("button, a, input, textarea, select, [role='button']")) setHover(true);
   });
 
   document.addEventListener("mouseout", e => {
-    if (e.target.closest("button, a, input, textarea, select, [role='button']")) {
-      setHover(false);
-    }
+    if (e.target.closest("button, a, input, textarea, select, [role='button']")) setHover(false);
   });
 
   // Listen for iframe messages
   window.addEventListener("message", e => {
     const data = e.data;
     if (!data || typeof data !== "object") return;
-    if (data.type === "cursorMove") updateCursor(data.x, data.y);
+
+    // Find which iframe sent the message
+    const iframe = Array.from(document.querySelectorAll("iframe")).find(f => f.contentWindow === e.source);
+    let offsetX = 0, offsetY = 0;
+    if (iframe) {
+      const rect = iframe.getBoundingClientRect();
+      offsetX = rect.left;
+      offsetY = rect.top;
+    }
+
+    if (data.type === "cursorMove") updateCursor(data.x + offsetX, data.y + offsetY);
     if (data.type === "cursorHover") setHover(data.hover);
   });
 
