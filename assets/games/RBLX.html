@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roblox</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+  }
+  #gameFrame {
+    width: 100vw;
+    height: 100vh;
+    border: none;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<iframe id="gameFrame" src="/cloudmoon/game/com.roblox.client/?from=list"></iframe>
+
+<script>
+  const disclaimer = "⚠️ Disclaimer: you have to sign up with an account either at home, or use your school acc to sign up. You also only have 20 minutes to play! Sorry, I didn't make the rules :(";
+  
+  if (confirm(disclaimer)) {
+    document.getElementById('gameFrame').style.display = 'block';
+  } else {
+    document.body.innerHTML = "<p style='color:white;text-align:center;margin-top:20%;'>bruh just press ok</p>";
+  }
+</script>
+
+</body>
+</html>
