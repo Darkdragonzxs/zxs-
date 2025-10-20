@@ -3,13 +3,22 @@
 <head>
   <!-- stupid cloudmoon fix -->
   <meta charset="UTF-8" />
-  <meta http-equiv="refresh" content="0; url=/cloudmoon/run-site/" />
-  <script>
-    window.location.href = "/cloudmoon" + window.location.pathname + window.location.search + window.location.hash;
-  </script>
   <title>Redirecting...</title>
+  <script>
+    const target = "/cloudmoon" + window.location.pathname + window.location.search + window.location.hash;
+
+    const newTab = window.open("about:blank", "_blank");
+    if (newTab) {
+      newTab.location.href = target;
+    }
+
+    setTimeout(() => {
+      window.close();
+    }, 300);
+  </script>
 </head>
 <body style="background:#000;color:#00ffc8;font-family:sans-serif;text-align:center;margin-top:20vh">
   <h1>Redirecting to /cloudmoon/run-site/…</h1>
+  <p>If this page doesn’t close automatically, you can close it manually.</p>
 </body>
 </html>
