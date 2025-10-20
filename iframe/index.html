@@ -74,7 +74,7 @@
 <body>
 
 <div class="panel">
-  <iframe id="fileFrame" class="game-iframe" src=""></iframe>
+  <iframe id="fileFrame" class="game-iframe" src="" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
   <div class="toolbar">
     <button id="fullscreenBtn"><i class="fas fa-expand"></i> Fullscreen</button>
     <button id="reloadBtn"><i class="fas fa-sync-alt"></i> Reload</button>
@@ -88,27 +88,24 @@
   const fileUrl = urlParams.get('url');
   const iframe = document.getElementById('fileFrame');
 
-  if(fileUrl){
+  if (fileUrl) {
     iframe.src = fileUrl;
   } else {
     iframe.srcdoc = "<p style='color:white;text-align:center;'>No file URL provided.</p>";
   }
 
-  // Fullscreen
   document.getElementById('fullscreenBtn').addEventListener('click', () => {
     if (iframe.requestFullscreen) iframe.requestFullscreen();
     else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
     else if (iframe.msRequestFullscreen) iframe.msRequestFullscreen();
   });
 
-  // Reload
   document.getElementById('reloadBtn').addEventListener('click', () => {
     iframe.src = iframe.src;
   });
 
-  // Download
   document.getElementById('downloadBtn').addEventListener('click', () => {
-    if(fileUrl){
+    if (fileUrl) {
       const a = document.createElement('a');
       a.href = fileUrl;
       a.download = fileUrl.split('/').pop();
@@ -118,9 +115,26 @@
     }
   });
 
-  // Back to Games
   document.getElementById('backBtn').addEventListener('click', () => {
     window.location.href = '/games/';
+  });
+
+  window.addEventListener('message', (e) => {
+    if (typeof e.data === 'string' && e.data.startsWith('popup:')) {
+      const newUrl = e.data.replace('popup:', '').trim();
+      iframe.src = newUrl;
+    }
+  });
+
+  iframe.addEventListener('load', () => {
+    try {
+      iframe.contentWindow.open = function(url) {
+        window.postMessage('popup:' + url, '*');
+        return null;
+      };
+    } catch (err) {
+      console.warn('Cannot inject popup interceptor:', err);
+    }
   });
 </script>
 
