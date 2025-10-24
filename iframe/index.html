@@ -84,53 +84,60 @@
 </div>
 
 <script>
-  const iframe = document.getElementById('fileFrame');
+const iframe = document.getElementById('fileFrame');
 
-  function loadFromHash() {
-    // Hash format: #/https://example.com/somefile.html or #/relative/path.html
-    const hash = decodeURIComponent(location.hash.slice(2)); // remove "#/"
-    if(hash){
-      iframe.src = hash;
-    } else {
-      iframe.srcdoc = "<p style='color:white;text-align:center;'>No file URL provided.</p>";
+function loadFromHash() {
+    let hash = decodeURIComponent(location.hash.slice(2)); // remove "#/"
+    if(!hash){
+        iframe.srcdoc = "<p style='color:white;text-align:center;'>No file URL provided.</p>";
+        return;
     }
-  }
 
-  // Initial load
-  loadFromHash();
+    // If starts with http:// or https://, treat as absolute URL
+    if(/^https?:\/\//.test(hash)) {
+        iframe.src = hash;
+    } else {
+        // Otherwise, treat as root-relative path
+        if(!hash.startsWith('/')) hash = '/' + hash;
+        iframe.src = hash;
+    }
+}
 
-  // Update iframe whenever hash changes
-  window.addEventListener('hashchange', loadFromHash);
+// Initial load
+loadFromHash();
 
-  // Fullscreen
-  document.getElementById('fullscreenBtn').addEventListener('click', () => {
-    if (iframe.requestFullscreen) iframe.requestFullscreen();
-    else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
-    else if (iframe.msRequestFullscreen) iframe.msRequestFullscreen();
-  });
+// Update iframe whenever hash changes
+window.addEventListener('hashchange', loadFromHash);
 
-  // Reload
-  document.getElementById('reloadBtn').addEventListener('click', () => {
+// Fullscreen button
+document.getElementById('fullscreenBtn').addEventListener('click', () => {
+    if(iframe.requestFullscreen) iframe.requestFullscreen();
+    else if(iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
+    else if(iframe.msRequestFullscreen) iframe.msRequestFullscreen();
+});
+
+// Reload button
+document.getElementById('reloadBtn').addEventListener('click', () => {
     iframe.src = iframe.src;
-  });
+});
 
-  // Download
-  document.getElementById('downloadBtn').addEventListener('click', () => {
+// Download button
+document.getElementById('downloadBtn').addEventListener('click', () => {
     const url = iframe.src;
     if(url){
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = url.split('/').pop();
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = url.split('/').pop() || 'file';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     }
-  });
+});
 
-  // Back to Games
-  document.getElementById('backBtn').addEventListener('click', () => {
+// Back to games
+document.getElementById('backBtn').addEventListener('click', () => {
     window.location.href = '/games/';
-  });
+});
 </script>
 
 </body>
