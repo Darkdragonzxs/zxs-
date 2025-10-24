@@ -6,7 +6,7 @@
 <title>ZXS Iframe Viewer</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-<script src="/assets/cursor.js" defer></script>
+<script src="/assets/cursor-help.js" defer></script>
 <style>
   html, body {
     margin: 0;
@@ -79,60 +79,57 @@
   <div class="toolbar">
     <button id="fullscreenBtn"><i class="fas fa-expand"></i> Fullscreen</button>
     <button id="reloadBtn"><i class="fas fa-sync-alt"></i> Reload</button>
-    <button id="downloadBtn"><i class="fas fa-download"></i> Download</button>
     <button id="backBtn"><i class="fas fa-arrow-left"></i> Exit the VM</button>
   </div>
 </div>
 
 <script>
-  const urlParams = new URLSearchParams(window.location.search);
-  const fileUrl = urlParams.get('url');
-  const iframe = document.getElementById('fileFrame');
+const iframe = document.getElementById('fileFrame');
 
-  if(fileUrl){
-    iframe.src = fileUrl;
-  } else {
-    iframe.srcdoc = "<p style='color:white;text-align:center;'>No file URL provided.</p>";
-  }
-
-  // Ensure iframe always receives keyboard focus
-  iframe.addEventListener('load', () => {
-    iframe.contentWindow.focus();
-  });
-
-  // Also focus iframe on click
-  iframe.addEventListener('click', () => {
-    iframe.contentWindow.focus();
-  });
-
-  // Fullscreen
-  document.getElementById('fullscreenBtn').addEventListener('click', () => {
-    if (iframe.requestFullscreen) iframe.requestFullscreen();
-    else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
-    else if (iframe.msRequestFullscreen) iframe.msRequestFullscreen();
-  });
-
-  // Reload
-  document.getElementById('reloadBtn').addEventListener('click', () => {
-    iframe.src = iframe.src;
-  });
-
-  // Download
-  document.getElementById('downloadBtn').addEventListener('click', () => {
-    if(fileUrl){
-      const a = document.createElement('a');
-      a.href = fileUrl;
-      a.download = fileUrl.split('/').pop();
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+// Load iframe src from hash (#/url)
+function loadFromHash() {
+    let hash = decodeURIComponent(location.hash.slice(2)); // remove "#/"
+    if(!hash){
+        iframe.srcdoc = "<p style='color:white;text-align:center;'>No file URL provided.</p>";
+        return;
     }
-  });
 
-  // Back to Games
-  document.getElementById('backBtn').addEventListener('click', () => {
+    // Absolute URL
+    if(/^https?:\/\//.test(hash)) {
+        iframe.src = hash;
+    } else {
+        // Root-relative path
+        if(!hash.startsWith('/')) hash = '/' + hash;
+        iframe.src = hash;
+    }
+}
+
+// Initial load
+loadFromHash();
+
+// Reload iframe when hash changes
+window.addEventListener('hashchange', loadFromHash);
+
+// Ensure iframe receives keyboard focus
+iframe.addEventListener('load', () => iframe.contentWindow.focus());
+iframe.addEventListener('click', () => iframe.contentWindow.focus());
+
+// Fullscreen
+document.getElementById('fullscreenBtn').addEventListener('click', () => {
+    if(iframe.requestFullscreen) iframe.requestFullscreen();
+    else if(iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
+    else if(iframe.msRequestFullscreen) iframe.msRequestFullscreen();
+});
+
+// Reload
+document.getElementById('reloadBtn').addEventListener('click', () => {
+    iframe.src = iframe.src;
+});
+
+// Back to VM
+document.getElementById('backBtn').addEventListener('click', () => {
     window.location.href = '/vm/';
-  });
+});
 </script>
 
 </body>
