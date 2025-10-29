@@ -3,67 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roblox Cloudmoon Embed</title>
+  <title>Cloudmoon Roblox Embed</title>
   <style>
-    body {
+    html, body {
       margin: 0;
-      height: 100vh;
-      overflow: hidden;
+      height: 100%;
       background: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
-
     iframe {
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       border: none;
-    }
-
-    .confirm-button {
-      position: absolute;
-      z-index: 10;
-      padding: 12px 30px;
-      font-size: 1.2em;
-      font-family: sans-serif;
-      background-color: #0078ff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .confirm-button:hover {
-      background-color: #005fcc;
-    }
-
-    .hidden {
-      display: none;
     }
   </style>
 </head>
 <body>
   <iframe id="gameFrame" src="/cloudmoon/game/com.roblox.client/"></iframe>
 
-  <button class="confirm-button svelte-wd4tyz" id="playButton">Play</button>
-
   <script>
-    const playButton = document.getElementById("playButton");
+    const iframe = document.getElementById("gameFrame");
 
-    // Center the button
-    function positionButton() {
-      playButton.style.top = "50%";
-      playButton.style.left = "50%";
-      playButton.style.transform = "translate(-50%, -50%)";
-    }
+    iframe.addEventListener("load", () => {
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
-    positionButton();
+      // Create button
+      const button = iframeDoc.createElement("button");
+      button.className = "confirm-button svelte-wd4tyz";
+      button.textContent = "Play";
 
-    // When clicked, hide the button
-    playButton.addEventListener("click", () => {
-      playButton.classList.add("hidden");
+      // Style the button
+      const style = iframeDoc.createElement("style");
+      style.textContent = `
+        .confirm-button.svelte-wd4tyz {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          padding: 12px 30px;
+          font-size: 1.2em;
+          font-family: sans-serif;
+          background-color: #0078ff;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: background 0.2s;
+          z-index: 999999;
+        }
+        .confirm-button.svelte-wd4tyz:hover {
+          background-color: #005fcc;
+        }
+      `;
+
+      // Append to iframe
+      iframeDoc.head.appendChild(style);
+      iframeDoc.body.appendChild(button);
+
+      // Optional: remove button when clicked
+      button.addEventListener("click", () => button.remove());
     });
   </script>
 </body>
