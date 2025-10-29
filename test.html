@@ -1,234 +1,297 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Auto-click Play (iframe)</title>
-  <style>
-    :root {
-      --bg: #0b0b0b;
-      --panel: rgba(0,0,0,0.6);
-      --accent: #28a0ff;
-      --success: #2ecc71;
-      --danger: #ff5c5c;
-      --text: #e8eef6;
-    }
-    html,body { height:100%; margin:0; background:var(--bg); color:var(--text); font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
-    #wrap { height:100vh; display:grid; grid-template-rows: auto 1fr; }
-    header {
-      padding:10px 14px;
-      background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      display:flex; align-items:center; gap:12px;
-      border-bottom:1px solid rgba(255,255,255,0.03);
-    }
-    header h1 { font-size:14px; margin:0; font-weight:600; letter-spacing:0.2px; }
-    header .small { font-size:12px; color:rgba(232,238,246,0.7); font-weight:400; }
-    main { position:relative; }
-    iframe { width:100%; height:calc(100vh - 52px); border:0; display:block; }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Auto-click + Server Selector (iframe)</title>
+<style>
+  :root {
+    --bg: #0b0b0b;
+    --panel: rgba(0,0,0,0.6);
+    --accent: #28a0ff;
+    --success: #2ecc71;
+    --danger: #ff5c5c;
+    --text: #e8eef6;
+  }
+  html,body { height:100%; margin:0; background:var(--bg); color:var(--text); font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+  #wrap { height:100vh; display:grid; grid-template-rows: auto 1fr; }
+  header { padding:10px 14px; background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); display:flex; align-items:center; gap:12px; border-bottom:1px solid rgba(255,255,255,0.03); }
+  header h1 { font-size:14px; margin:0; font-weight:600; letter-spacing:0.2px; }
+  header .small { font-size:12px; color:rgba(232,238,246,0.7); font-weight:400; }
+  main { position:relative; }
+  iframe { width:100%; height:calc(100vh - 52px); border:0; display:block; }
 
-    /* Status overlay */
-    #status {
-      position:fixed;
-      right:14px;
-      bottom:14px;
-      background:var(--panel);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:10px;
-      box-shadow:0 8px 20px rgba(0,0,0,0.6);
-      backdrop-filter: blur(6px);
-      font-size:13px;
-      z-index:99999;
-      display:flex;
-      gap:10px;
-      align-items:center;
-    }
-    #status .dot { width:10px; height:10px; border-radius:50%; background:#666; box-shadow:0 0 6px rgba(0,0,0,0.6); }
-    #status.success .dot { background: var(--success); box-shadow:0 6px 18px rgba(46,204,113,0.12); }
-    #status.error .dot { background: var(--danger); box-shadow:0 6px 18px rgba(255,92,92,0.12); }
-    #status .msg { min-width:170px; }
-    #status button {
-      background:transparent;
-      border:1px solid rgba(255,255,255,0.08);
-      color:var(--text);
-      padding:6px 10px;
-      border-radius:8px;
-      cursor:pointer;
-      font-size:13px;
-    }
-    #status button.primary {
-      background:linear-gradient(180deg,var(--accent),#0187e6);
-      border: none;
-      color: white;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.45);
-    }
-    #note {
-      position: fixed;
-      left: 14px;
-      bottom: 14px;
-      color: rgba(232,238,246,0.8);
-      font-size:12px;
-      background: rgba(0,0,0,0.45);
-      padding:8px 10px;
-      border-radius:8px;
-      z-index:99998;
-    }
-  </style>
+  /* Status & controls overlay */
+  #controls {
+    position:fixed;
+    right:14px;
+    bottom:14px;
+    background:var(--panel);
+    color:var(--text);
+    padding:12px;
+    border-radius:12px;
+    box-shadow:0 8px 28px rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    font-size:13px;
+    z-index:99999;
+    width:320px;
+  }
+  #controls h3 { margin:0 0 8px 0; font-size:13px; }
+  #controls .row { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+  #controls label { font-size:12px; width:110px; color:rgba(232,238,246,0.85); }
+  #controls select, #controls button {
+    flex:1;
+    padding:8px 10px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.06);
+    background:transparent;
+    color:var(--text);
+  }
+  #controls button.primary {
+    background: linear-gradient(180deg, var(--accent), #0187e6);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+  }
+  #controls .tiny { font-size:12px; opacity:0.85; }
+  #status-line { font-size:12px; margin-top:6px; color:rgba(232,238,246,0.8); }
+
+  #note {
+    position: fixed;
+    left: 14px;
+    bottom: 14px;
+    color: rgba(232,238,246,0.8);
+    font-size:12px;
+    background: rgba(0,0,0,0.45);
+    padding:8px 10px;
+    border-radius:8px;
+    z-index:99998;
+  }
+</style>
 </head>
 <body>
   <div id="wrap">
     <header>
-      <h1>Auto-click Play (iframe)</h1>
-      <div class="small">Will locate <code>button.svelte-19kto5k</code> inside the iframe and click it.</div>
+      <h1>Auto-click Play + Server Selector</h1>
+      <div class="small">Finds and clicks <code>button.svelte-19kto5k</code> and controls the server <code>select.svelte-1y960i6</code> inside the iframe.</div>
     </header>
 
     <main>
-      <!-- Change src if needed -->
       <iframe id="gameFrame" src="/cloudmoon/game/com.roblox.client/" title="Cloudmoon Game"></iframe>
     </main>
   </div>
 
-  <div id="status" aria-live="polite">
-    <div class="dot" id="status-dot"></div>
-    <div class="msg" id="status-msg">Waiting for iframe...</div>
-    <button id="try-now" title="Attempt click now">Try now</button>
-    <button id="show-error" style="display:none;">Details</button>
+  <div id="controls" aria-live="polite" role="region">
+    <h3>Controls</h3>
+
+    <div class="row">
+      <label>Auto-click Play</label>
+      <button id="manual-click" class="primary">Try click now</button>
+    </div>
+
+    <div class="row">
+      <label for="serverSelect">Choose server</label>
+      <select id="serverSelect">
+        <option value="">(waiting for iframe)</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <label></label>
+      <button id="setServerBtn" class="primary">Set server</button>
+    </div>
+
+    <div id="status-line">Status: <span id="statusText">waiting for iframe...</span></div>
   </div>
 
-  <div id="note">Same-origin required. If this page and the iframe are different origins, the script cannot access the iframe DOM.</div>
+  <div id="note">Same-origin required. If the iframe is cross-origin, parent JS cannot access the framed DOM.</div>
 
-  <script>
-    (function () {
-      const iframe = document.getElementById('gameFrame');
-      const statusDot = document.getElementById('status-dot');
-      const statusMsg = document.getElementById('status-msg');
-      const tryNow = document.getElementById('try-now');
-      const showErrorBtn = document.getElementById('show-error');
+<script>
+(function () {
+  const iframe = document.getElementById('gameFrame');
+  const manualClickBtn = document.getElementById('manual-click');
+  const serverSelect = document.getElementById('serverSelect');
+  const setServerBtn = document.getElementById('setServerBtn');
+  const statusText = document.getElementById('statusText');
 
-      let lastError = null;
-      const selector = 'button.svelte-19kto5k';
-      const MAX_WAIT = 20000; // ms to wait for button
-      const POLL_INTERVAL = 250;
+  const BUTTON_SELECTOR = 'button.svelte-19kto5k';
+  const SELECT_SELECTOR = 'select.svelte-1y960i6';
 
-      const setStatus = (state, text) => {
-        statusMsg.textContent = text;
-        document.getElementById('status').classList.remove('success', 'error');
-        if (state === 'ok') {
-          document.getElementById('status').classList.add('success');
-        } else if (state === 'error') {
-          document.getElementById('status').classList.add('error');
-        }
-      };
+  const MAX_WAIT = 20000;
+  const POLL = 250;
 
-      const tryClickButton = async () => {
+  let lastError = null;
+  function logStatus(text) { statusText.textContent = text; }
+
+  // Utility: wait for element inside iframe doc
+  function waitForElementInIframe(selector, timeout = MAX_WAIT) {
+    return new Promise((resolve, reject) => {
+      const start = Date.now();
+      (function poll() {
         try {
-          // Access iframe document (may throw if cross-origin)
           const doc = iframe.contentDocument || iframe.contentWindow.document;
-          if (!doc) throw new Error('iframe document not accessible');
-
-          // Try to find button immediately
+          if (!doc) throw new Error('iframe doc unavailable (maybe cross-origin)');
           const el = doc.querySelector(selector);
-          if (el) {
-            // Preferred: native click
-            try {
-              el.click();
-              setStatus('ok', 'Button clicked via .click()');
-              return { method: 'click', element: el };
-            } catch (eClick) {
-              // fallback to dispatching MouseEvent at center
-              const r = el.getBoundingClientRect();
-              const centerX = Math.floor(r.left + r.width / 2);
-              const centerY = Math.floor(r.top + r.height / 2);
-              const evt = new MouseEvent('click', {
-                view: iframe.contentWindow,
-                bubbles: true,
-                cancelable: true,
-                clientX: centerX,
-                clientY: centerY
-              });
-              el.dispatchEvent(evt);
-              setStatus('ok', 'Button clicked via MouseEvent fallback');
-              return { method: 'mouseEvent', element: el };
-            }
-          } else {
-            throw new Error('Button not found in iframe DOM');
-          }
+          if (el) return resolve(el);
         } catch (err) {
+          // access errors (cross-origin) will be caught here
           lastError = err;
-          console.error('Click attempt failed:', err);
-          setStatus('error', String(err && err.message ? err.message : err));
-          showErrorBtn.style.display = 'inline-block';
-          return null;
+          // don't reject immediately; wait for iframe load event to try again
         }
-      };
+        if (Date.now() - start > timeout) return reject(new Error('timeout waiting for ' + selector + (lastError ? ' ('+lastError.message+')' : '')));
+        setTimeout(poll, POLL);
+      })();
+    });
+  }
 
-      // Wait for iframe to be accessible & poll until the button appears (timeout)
-      async function waitAndClick() {
-        setStatus('error', 'Waiting for iframe to be accessible...');
-        // wait for iframe load OR accessible
-        await new Promise(resolve => {
-          let resolved = false;
-          const tryResolve = () => {
-            try {
-              // If same-origin and readyState present, resolve
-              const doc = iframe.contentDocument || iframe.contentWindow && iframe.contentWindow.document;
-              if (doc && (doc.readyState === 'interactive' || doc.readyState === 'complete')) {
-                if (!resolved) { resolved = true; resolve(); }
-              }
-            } catch (e) {
-              // cross-origin will throw here — we still wait for load event in that case
-            }
-          };
-          iframe.addEventListener('load', () => {
-            if (!resolved) { resolved = true; resolve(); }
-          }, { once: true });
-
-          // also poll a few times in case already accessible
-          const checkInterval = setInterval(() => {
-            tryResolve();
-          }, 200);
-
-          // stop polling after a short while if nothing happens — load event will still resolve eventually
-          setTimeout(() => {
-            clearInterval(checkInterval);
-            if (!resolved) { resolved = true; resolve(); }
-          }, 3000);
+  // Try to click a button element reliably
+  async function tryClickButton() {
+    try {
+      const btn = await waitForElementInIframe(BUTTON_SELECTOR, 10000);
+      if (!btn) throw new Error('button not found');
+      try {
+        btn.click();
+        logStatus('Play button clicked via .click()');
+        return;
+      } catch (e) {
+        // fallback: MouseEvent at center
+        const r = btn.getBoundingClientRect();
+        const centerX = Math.floor(r.left + r.width/2);
+        const centerY = Math.floor(r.top + r.height/2);
+        const evt = new MouseEvent('click', {
+          view: iframe.contentWindow,
+          bubbles: true,
+          cancelable: true,
+          clientX: centerX,
+          clientY: centerY
         });
+        btn.dispatchEvent(evt);
+        logStatus('Play button clicked via MouseEvent fallback');
+        return;
+      }
+    } catch (err) {
+      console.error('Error clicking button:', err);
+      logStatus('Failed to click Play: ' + (err.message || err));
+    }
+  }
 
-        // Now poll for the button up to MAX_WAIT
-        const start = Date.now();
-        while (Date.now() - start < MAX_WAIT) {
-          const result = await tryClickButton();
-          if (result) return result;
-          await new Promise(r => setTimeout(r, POLL_INTERVAL));
+  // Populate parent overlay select with options found in iframe select when available
+  async function populateServerOptions() {
+    try {
+      const sel = await waitForElementInIframe(SELECT_SELECTOR, 15000);
+      // copy options
+      const opts = Array.from(sel.options).map(o => ({ value: o.value, text: o.text }));
+      // clear and add to parent select
+      serverSelect.innerHTML = '';
+      opts.forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o.value;
+        opt.textContent = o.text;
+        serverSelect.appendChild(opt);
+      });
+      logStatus('Server list loaded (' + opts.length + ' options)');
+      return true;
+    } catch (err) {
+      console.warn('Could not populate server options:', err);
+      serverSelect.innerHTML = '<option value="">(server list unavailable)</option>';
+      logStatus('Server list not found: ' + (err.message || err));
+      return false;
+    }
+  }
+
+  // Set the select inside the iframe to the chosen value and dispatch events
+  async function setServerInIframe(value) {
+    try {
+      const sel = await waitForElementInIframe(SELECT_SELECTOR, 8000);
+      if (!sel) throw new Error('select not found');
+      // If value is empty, do nothing
+      if (!value) {
+        logStatus('No server value selected');
+        return;
+      }
+      // Set value if option exists, else fallback to index or visible text
+      const optionExists = Array.from(sel.options).some(o => o.value === value);
+      if (optionExists) {
+        sel.value = value;
+      } else {
+        // try to set by matching visible text
+        const match = Array.from(sel.options).find(o => o.text.trim() === value);
+        if (match) sel.value = match.value;
+        else {
+          // last resort: set to first non-zero
+          sel.selectedIndex = 0;
         }
-        // final attempt & fail
-        setStatus('error', 'Timed out waiting for button (increase MAX_WAIT if needed)');
-        return null;
       }
 
-      // Kick it off automatically
-      waitAndClick().catch(e => {
-        console.error('Unexpected error in waitAndClick:', e);
-        setStatus('error', String(e && e.message ? e.message : e));
-      });
+      // Dispatch input/change events
+      const inputEvt = new Event('input', { bubbles: true });
+      const changeEvt = new Event('change', { bubbles: true });
+      sel.dispatchEvent(inputEvt);
+      sel.dispatchEvent(changeEvt);
 
-      // Manual try now button
-      tryNow.addEventListener('click', async () => {
-        setStatus('error', 'Manual attempt...');
-        await tryClickButton();
-      });
+      // Some frameworks expect a "click" on the option or on the select to open; try to simulate a click on the selected option element
+      try {
+        const selectedOption = sel.options[sel.selectedIndex];
+        if (selectedOption) {
+          // elementFromPoint often needs coordinates within iframe viewport
+          const rect = sel.getBoundingClientRect();
+          const optRect = { left: Math.floor(rect.left + rect.width/2), top: Math.floor(rect.top + rect.height/2) };
+          const target = iframe.contentDocument.elementFromPoint(optRect.left, optRect.top) || sel;
+          const mouseEvt = new MouseEvent('click', { view: iframe.contentWindow, bubbles: true, cancelable: true, clientX: optRect.left, clientY: optRect.top });
+          target.dispatchEvent(mouseEvt);
+        }
+      } catch (e) { /* non-fatal */ }
 
-      showErrorBtn.addEventListener('click', () => {
-        if (!lastError) alert('No additional error info available.');
-        else alert('Last error:\n' + (lastError.stack || lastError.message || String(lastError)));
-      });
+      logStatus('Server set inside iframe (value=' + sel.value + ')');
+    } catch (err) {
+      console.error('Error setting server in iframe:', err);
+      logStatus('Failed to set server: ' + (err.message || err));
+    }
+  }
 
-      // show a helpful note if cross-origin access is blocked
-      window.addEventListener('error', (ev) => {
-        // noop — console will show it; we keep user visible status via setStatus above
-      });
-    })();
-  </script>
+  // Kick off: when iframe loads, try auto-click and load server options
+  iframe.addEventListener('load', () => {
+    logStatus('iframe loaded — attempting auto actions...');
+    // short delay to allow the framed JS to mount UI
+    setTimeout(() => {
+      tryClickButton();
+      populateServerOptions();
+    }, 400); // adjust if needed for slower UIs
+  });
+
+  // Manual UI hooks
+  manualClickBtn.addEventListener('click', async () => {
+    logStatus('Manual click requested...');
+    await tryClickButton();
+  });
+
+  setServerBtn.addEventListener('click', async () => {
+    const val = serverSelect.value;
+    logStatus('Setting server to ' + (val || '(empty)') + '...');
+    await setServerInIframe(val);
+  });
+
+  // Try an initial attempt in case iframe is already loaded before script runs
+  (function initialTry() {
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow && iframe.contentWindow.document;
+      if (doc && (doc.readyState === 'interactive' || doc.readyState === 'complete')) {
+        // small delay
+        setTimeout(() => {
+          tryClickButton();
+          populateServerOptions();
+        }, 300);
+      } else {
+        // not ready; status already set via load listener
+      }
+    } catch (err) {
+      // cross-origin or other access error
+      console.warn('Initial access denied (maybe cross-origin):', err);
+      logStatus('Cannot access iframe: ' + (err.message || err));
+    }
+  })();
+
+})();
+</script>
 </body>
 </html>
