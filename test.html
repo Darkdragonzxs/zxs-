@@ -11,13 +11,11 @@
     color: #eee;
     font-family: "Inter", sans-serif;
   }
-
   iframe {
     width: 100vw;
     height: 100vh;
     border: none;
   }
-
   #overlay {
     position: fixed;
     bottom: 10px;
@@ -31,7 +29,6 @@
     color: #e0e0e0;
     z-index: 1000;
   }
-
   #overlay select, #overlay button {
     width: 100%;
     margin-top: 8px;
@@ -42,12 +39,10 @@
     color: white;
     background: #1e1e1e;
   }
-
   #overlay button {
     background: linear-gradient(180deg, #2a82e4, #1b66b3);
     cursor: pointer;
   }
-
   #status {
     margin-top: 6px;
     font-size: 12px;
@@ -81,12 +76,8 @@
   function updateStatus(msg) { status.textContent = msg; }
 
   function getDoc() {
-    try {
-      return iframe.contentDocument || iframe.contentWindow.document;
-    } catch {
-      updateStatus('❌ Cannot access iframe (cross-origin)');
-      return null;
-    }
+    try { return iframe.contentDocument || iframe.contentWindow.document; }
+    catch { updateStatus('❌ Cannot access iframe (cross-origin)'); return null; }
   }
 
   async function waitFor(selector, timeout = 15000) {
@@ -144,16 +135,26 @@
   async function clickSignIn() {
     try {
       const doc = getDoc();
-      const div = Array.from(doc.querySelectorAll('div')).find(d => 
-        d.textContent.trim() === 'Sign in with password' &&
-        d.style.color === 'rgba(42, 130, 228, 1)'
-      );
-      if (div) {
-        div.click();
-        updateStatus('✅ Clicked "Sign in with password"');
-      } else {
-        updateStatus('⚠️ Could not find Sign-in div');
-      }
+      if (!doc) throw new Error('iframe inaccessible');
+      updateStatus('🔍 Looking for "Sign in with password"...');
+      const start = Date.now();
+
+      (function poll() {
+        const divs = Array.from(doc.querySelectorAll('div'));
+        const target = divs.find(d =>
+          d.textContent.trim().toLowerCase().includes('sign in with password')
+        );
+        if (target) {
+          target.click();
+          updateStatus('✅ Clicked "Sign in with password"');
+          return;
+        }
+        if (Date.now() - start > 15000) {
+          updateStatus('⚠️ Timed out — div not found within 15s');
+          return;
+        }
+        setTimeout(poll, 500);
+      })();
     } catch (e) {
       updateStatus('⚠️ Failed to click Sign-in: ' + e);
     }
@@ -164,7 +165,7 @@
     setTimeout(() => {
       clickPlay();
       populateServers();
-    }, 600);
+    }, 800);
   });
 
   setServerBtn.onclick = setServer;
