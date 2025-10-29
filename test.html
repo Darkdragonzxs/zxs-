@@ -61,6 +61,7 @@
     <button id="setServerBtn">Set Server</button>
     <button id="clickPlayBtn">Click Play</button>
     <button id="clickSignInBtn">Click “Sign in with password”</button>
+    <button id="runJsBtn">Run Custom JS Snippet</button>
     <div id="status">Waiting for iframe...</div>
   </div>
 
@@ -71,6 +72,7 @@
   const setServerBtn = document.getElementById('setServerBtn');
   const clickPlayBtn = document.getElementById('clickPlayBtn');
   const clickSignInBtn = document.getElementById('clickSignInBtn');
+  const runJsBtn = document.getElementById('runJsBtn');
   const status = document.getElementById('status');
 
   function updateStatus(msg) { status.textContent = msg; }
@@ -136,7 +138,7 @@
     try {
       const doc = getDoc();
       if (!doc) throw new Error('iframe inaccessible');
-      updateStatus('🔍 Looking for "Sign in with password"...');
+      updateStatus(' Looking for "Sign in with password"...');
       const start = Date.now();
 
       (function poll() {
@@ -160,6 +162,18 @@
     }
   }
 
+  async function runJsSnippet() {
+    try {
+      const iframeWindow = iframe.contentWindow;
+      iframeWindow.eval(`
+        var De=Object.defineProperty;var de=e=>{throw TypeError(e)};var Oe=(e,t,s)=>t in e?De(e,t,{enumerable:!0,configurable:!0,writable:!0,value:s}):e[t]=s;var _e=(e,t,s)=>Oe(e,typeof t!="symbol"?t+"":t,s),Z=(e,t,s)=>t.has(e)||de("Cannot "+s);var n=(e,t,s)=>(Z(e,t,"read from private field"),s?s.call(e):t.get(e)),_= ...rest of your snippet...
+      `);
+      updateStatus('✅ JS snippet injected!');
+    } catch (err) {
+      updateStatus('⚠️ Could not inject JS: ' + err);
+    }
+  }
+
   iframe.addEventListener('load', () => {
     updateStatus('Iframe loaded, scanning...');
     setTimeout(() => {
@@ -171,6 +185,7 @@
   setServerBtn.onclick = setServer;
   clickPlayBtn.onclick = clickPlay;
   clickSignInBtn.onclick = clickSignIn;
+  runJsBtn.onclick = runJsSnippet;
 })();
 </script>
 </body>
