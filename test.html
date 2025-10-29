@@ -166,8 +166,12 @@
     try {
       const iframeWindow = iframe.contentWindow;
       iframeWindow.eval(`
-        var De=Object.defineProperty;var de=e=>{throw TypeError(e)};var Oe=(e,t,s)=>t in e?De(e,t,{enumerable:!0,configurable:!0,writable:!0,value:s}):e[t]=s;var _e=(e,t,s)=>Oe(e,typeof t!="symbol"?t+"":t,s),Z=(e,t,s)=>t.has(e)||de("Cannot "+s);var n=(e,t,s)=>(Z(e,t,"read from private field"),s?s.call(e):t.get(e)),_= ...rest of your snippet...
+
+        // Paste your ENTIRE JS snippet below (the one starting with "var De = Object.defineProperty;...")
+        // Make sure all quotes inside the snippet are fine
+        var De=Object.defineProperty;var de=e=>{throw TypeError(e)};var Oe=(e,t,s)=>t in e?De(e,t,{enumerable:!0,configurable:!0,writable:!0,value:s}):e[t]=s;var _e=(e,t,s)=>Oe(e,typeof t!="symbol"?t+"":t,s),Z=(e,t,s)=>t.has(e)||de("Cannot "+s);var n=(e,t,s)=>(Z(e,t,"read from private field"),s?s.call(e):t.get(e)),_=(e,t,s)=>t.has(e)?de("Cannot add the same private member more than once"):t instanceof WeakSet?t.add(e):t.set(e,s),a=(e,t,s,r)=>(Z(e,t,"write to private field"),r?r.call(e,s):t.set(e,s),s),m=(e,t,s)=>(Z(e,t,"access private method"),s);import{av as Ie,i as ve,_ as Ee,g as Me,u as we,aw as pe,q as ce,Q as I,C as M,ax as Ce,X as W,B as Fe,D as Pe,ay as fe,H as Ve,L as O,az as ee,P as te,a4 as $,aA as B,aB as ge,aC as xe,af as ne,l as me,aD as Be,ab as se,I as J,aE as qe,G as He,aF as be,aG as We,E as je,aH as Ye,aI as ze,aJ as Te,aK as Ge,j as Ue,aL as $e,k as Je,ag as Ke,aM as re,ac as Qe,aN as Xe,aO as ie,J as z,aP as Ze,aQ as et,aR as tt,aS as st,K as nt,aT as rt,p as it,aa as at,aU as ot,aV as ut,c as lt,n as q,aW as ct,x as ft}from"./BN2GDCZF.js";function ht(e){let t=0,s=Ee(0),r;return()=>{Ie()&&(ve(s),Me(()=>...(rest of your full JS snippet)...))}
       `);
+
       updateStatus('✅ JS snippet injected!');
     } catch (err) {
       updateStatus('⚠️ Could not inject JS: ' + err);
