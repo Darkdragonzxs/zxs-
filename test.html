@@ -24,43 +24,18 @@
     const iframe = document.getElementById("gameFrame");
 
     iframe.addEventListener("load", () => {
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+      try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
 
-      // Create button
-      const button = iframeDoc.createElement("button");
-      button.className = "confirm-button svelte-wd4tyz";
-      button.textContent = "Play";
+        // Create and inject the button
+        const btn = doc.createElement("button");
+        btn.className = "confirm-button svelte-wd4tyz";
+        btn.textContent = "Play";
 
-      // Style the button
-      const style = iframeDoc.createElement("style");
-      style.textContent = `
-        .confirm-button.svelte-wd4tyz {
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          padding: 12px 30px;
-          font-size: 1.2em;
-          font-family: sans-serif;
-          background-color: #0078ff;
-          color: white;
-          border: none;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: background 0.2s;
-          z-index: 999999;
-        }
-        .confirm-button.svelte-wd4tyz:hover {
-          background-color: #005fcc;
-        }
-      `;
-
-      // Append to iframe
-      iframeDoc.head.appendChild(style);
-      iframeDoc.body.appendChild(button);
-
-      // Optional: remove button when clicked
-      button.addEventListener("click", () => button.remove());
+        doc.body.appendChild(btn);
+      } catch (err) {
+        console.error("❌ Cannot inject button — iframe likely cross-origin:", err);
+      }
     });
   </script>
 </body>
