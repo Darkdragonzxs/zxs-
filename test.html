@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cloudmoon Roblox Embed</title>
+  <title>Cloudmoon Roblox Click Test</title>
   <style>
     html, body {
       margin: 0;
@@ -25,16 +25,23 @@
 
     iframe.addEventListener("load", () => {
       try {
-        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        const frameWindow = iframe.contentWindow;
+        const frameDoc = iframe.contentDocument || frameWindow.document;
 
-        // Create and inject the button
-        const btn = doc.createElement("button");
-        btn.className = "confirm-button svelte-wd4tyz";
-        btn.textContent = "Play";
+        // Create a click event at x=70, y=65
+        const clickEvent = new MouseEvent("click", {
+          bubbles: true,
+          cancelable: true,
+          clientX: 70,
+          clientY: 65
+        });
 
-        doc.body.appendChild(btn);
+        // Dispatch inside the iframe
+        frameDoc.dispatchEvent(clickEvent);
+
+        console.log("✅ Click dispatched at (70, 65) inside the iframe.");
       } catch (err) {
-        console.error("❌ Cannot inject button — iframe likely cross-origin:", err);
+        console.error("❌ Cannot click inside iframe — likely cross-origin:", err);
       }
     });
   </script>
