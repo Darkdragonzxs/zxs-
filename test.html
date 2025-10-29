@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roblox Cloudmoon Embed</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    iframe {
+      width: 100vw;
+      height: 100vh;
+      border: none;
+    }
+
+    .confirm-button {
+      position: absolute;
+      z-index: 10;
+      padding: 12px 30px;
+      font-size: 1.2em;
+      font-family: sans-serif;
+      background-color: #0078ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .confirm-button:hover {
+      background-color: #005fcc;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <iframe id="gameFrame" src="/cloudmoon/game/com.roblox.client/"></iframe>
+
+  <button class="confirm-button svelte-wd4tyz" id="playButton">Play</button>
+
+  <script>
+    const playButton = document.getElementById("playButton");
+
+    // Center the button
+    function positionButton() {
+      playButton.style.top = "50%";
+      playButton.style.left = "50%";
+      playButton.style.transform = "translate(-50%, -50%)";
+    }
+
+    positionButton();
+
+    // When clicked, hide the button
+    playButton.addEventListener("click", () => {
+      playButton.classList.add("hidden");
+    });
+  </script>
+</body>
+</html>
