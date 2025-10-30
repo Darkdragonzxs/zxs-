@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Cloudmoon Overlay Controller</title>
+<title>Cloudmoon Frame Controller</title>
 <style>
   body {
     margin: 0;
@@ -11,16 +11,21 @@
     color: #eee;
     font-family: "Inter", sans-serif;
   }
+
   iframe {
     width: 100vw;
     height: 100vh;
     border: none;
+    position: relative;
+    z-index: 1;
   }
+
+  /* Floating control overlay (bottom-right) */
   #overlay {
     position: fixed;
     bottom: 10px;
     right: 10px;
-    background: rgba(0,0,0,0.65);
+    background: rgba(0, 0, 0, 0.65);
     backdrop-filter: blur(6px);
     border-radius: 10px;
     padding: 12px;
@@ -29,7 +34,9 @@
     color: #e0e0e0;
     z-index: 1000;
   }
-  #overlay select, #overlay button {
+
+  #overlay select,
+  #overlay button {
     width: 100%;
     margin-top: 8px;
     border-radius: 8px;
@@ -39,31 +46,60 @@
     color: white;
     background: #1e1e1e;
   }
+
   #overlay button {
     background: linear-gradient(180deg, #2a82e4, #1b66b3);
     cursor: pointer;
   }
+
   #status {
     margin-top: 6px;
     font-size: 12px;
     opacity: 0.85;
   }
+
+  /* Screen darkener with transparent hole */
+  #darkOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+    -webkit-mask: radial-gradient(circle 100px at 53.5% 71%, transparent 100px, black 120px);
+    mask: radial-gradient(circle 100px at 53.5% 71%, transparent 100px, black 120px);
+    z-index: 500;
+  }
+
+  #holeMessage {
+    position: fixed;
+    top: 15px;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 16px;
+    z-index: 600;
+    pointer-events: none;
+  }
 </style>
 </head>
 <body>
+  <iframe id="gameFrame" src="/cloudmoon/game/com.roblox.client/" title="Cloudmoon Game"></iframe>
 
-<iframe id="gameFrame" src="/cloudmoon/game/com.roblox.client/" title="Cloudmoon Game"></iframe>
+  <!-- Dark overlay + message -->
+  <div id="darkOverlay"></div>
+  <div id="holeMessage">Sign in through the highlighted area</div>
 
-<div id="overlay">
-  <div><b>Server Selector</b></div>
-  <select id="serverSelect">
-    <option>(loading...)</option>
-  </select>
-  <button id="setServerBtn">Set Server</button>
-  <button id="clickPlayBtn">Click Play</button>
-  <button id="clickSignInBtn">Click “Sign in with password”</button>
-  <div id="status">Waiting for iframe...</div>
-</div>
+  <!-- Control Panel -->
+  <div id="overlay">
+    <div><b>Server Selector</b></div>
+    <select id="serverSelect">
+      <option>(loading...)</option>
+    </select>
+    <button id="setServerBtn">Set Server</button>
+    <button id="clickPlayBtn">Click Play</button>
+    <button id="clickSignInBtn">Click “Sign in with password”</button>
+    <button id="clickHoleBtn">Click Inside Hole</button>
+    <div id="status">Waiting for iframe...</div>
+  </div>
 
 <script>
 (function() {
@@ -72,13 +108,16 @@
   const setServerBtn = document.getElementById('setServerBtn');
   const clickPlayBtn = document.getElementById('clickPlayBtn');
   const clickSignInBtn = document.getElementById('clickSignInBtn');
+  const clickHoleBtn = document.getElementById('clickHoleBtn');
   const status = document.getElementById('status');
+  const darkOverlay = document.getElementById('darkOverlay');
+  const holeMessage = document.getElementById('holeMessage');
 
   function updateStatus(msg) { status.textContent = msg; }
 
   function getDoc() {
     try { return iframe.contentDocument || iframe.contentWindow.document; }
-    catch { updateStatus('❌ Cannot access iframe'); return null; }
+    catch { updateStatus('❌ Cannot access iframe (cross-origin)'); return null; }
   }
 
   async function waitFor(selector, timeout = 15000) {
@@ -137,8 +176,7 @@
     try {
       const doc = getDoc();
       if (!doc) throw new Error('iframe inaccessible');
-
-      updateStatus('🔍 Searching for "Sign in with password"...');
+      updateStatus('🔍 Looking for "Sign in with password"...');
       const start = Date.now();
 
       (function poll() {
@@ -152,7 +190,7 @@
           return;
         }
         if (Date.now() - start > 15000) {
-          updateStatus('⚠️ Timed out — div not found');
+          updateStatus('⚠️ Timed out — div not found within 15s');
           return;
         }
         setTimeout(poll, 500);
@@ -161,6 +199,24 @@
       updateStatus('⚠️ Failed to click Sign-in: ' + e);
     }
   }
+
+  // Simulated click inside the transparent "hole"
+  clickHoleBtn.onclick = () => {
+    const rect = iframe.getBoundingClientRect();
+    const x = rect.left + rect.width * 0.535;
+    const y = rect.top + rect.height * 0.71;
+
+    const clickEvent = new MouseEvent("click", {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+      clientX: x,
+      clientY: y
+    });
+
+    document.elementFromPoint(x, y)?.dispatchEvent(clickEvent);
+    updateStatus(`🎯 Simulated click at ${x.toFixed(1)}, ${y.toFixed(1)}`);
+  };
 
   iframe.addEventListener('load', () => {
     updateStatus('Iframe loaded, scanning...');
@@ -175,6 +231,5 @@
   clickSignInBtn.onclick = clickSignIn;
 })();
 </script>
-
 </body>
 </html>
