@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Cloudmoon Frame Controller</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloudmoon Fullscreen Controller</title>
 <style>
   body {
     margin: 0;
     background: #0b0b0b;
-    color: #eee;
     font-family: "Inter", sans-serif;
     overflow: hidden;
   }
@@ -21,108 +20,250 @@
     z-index: 1;
   }
 
-  /* Floating control overlay (bottom-right) */
-  #overlay {
+  /* Fullscreen overlay */
+  #fullscreenOverlay {
     position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(6px);
-    border-radius: 10px;
-    padding: 12px;
-    width: 300px;
-    font-size: 13px;
-    color: #e0e0e0;
-    z-index: 1000;
-    resize: both;
-    overflow: auto;
-    cursor: move;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95);
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    z-index: 2000;
+    padding: 20px;
   }
 
-  #overlay select,
-  #overlay button,
-  #overlay input {
-    width: 100%;
-    margin-top: 8px;
+  #fullscreenOverlay button,
+  #fullscreenOverlay select,
+  #fullscreenOverlay input {
+    width: 250px;
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 16px;
     border-radius: 8px;
     border: none;
-    padding: 8px;
-    font-size: 13px;
     color: white;
-    background: #1e1e1e;
   }
 
-  #overlay button {
+  #fullscreenOverlay button {
     background: linear-gradient(180deg, #2a82e4, #1b66b3);
     cursor: pointer;
   }
 
-  #status {
-    margin-top: 6px;
-    font-size: 12px;
-    opacity: 0.85;
+  #fullscreenOverlay input {
+    background: #1e1e1e;
   }
 
-  #cursorTracker {
-    position: fixed;
-    top: 10px;
-    left: 10px;
+  #fullscreenOverlay select {
+    background: #1e1e1e;
+    color: #fff;
+  }
+
+  #statusMessage {
+    margin-top: 20px;
+    font-size: 18px;
     color: #2a82e4;
-    font-family: monospace;
-    z-index: 1001;
-    font-size: 14px;
   }
 </style>
 </head>
 <body>
-  <iframe id="gameFrame" src="/cloudmoon/game/com.roblox.client/" title="Cloudmoon Game"></iframe>
 
-  <!-- Cursor tracker -->
-  <div id="cursorTracker">X: 0 | Y: 0</div>
+<iframe id="gameFrame" src="/cloudmoon/game/com.roblox.client/" title="Cloudmoon Game"></iframe>
 
-  <!-- Control Panel -->
-  <div id="overlay">
-    <div><b>Server Selector</b></div>
-    <select id="serverSelect">
-      <option>(loading...)</option>
-    </select>
-    <button id="setServerBtn">Set Server</button>
-    <button id="clickPlayBtn">Click Play</button>
-    <button id="clickSignInBtn">Click “Sign in with password”</button>
-
-    <!-- Input fields for email/password -->
-    <input id="emailInput" type="text" placeholder="Google account email" />
-    <input id="passwordInput" type="password" placeholder="Password" />
-
-    <div id="status">Waiting for iframe...</div>
-  </div>
+<div id="fullscreenOverlay">
+  <div id="stepContainer"></div>
+  <div id="statusMessage"></div>
+</div>
 
 <script>
 (function() {
   const iframe = document.getElementById('gameFrame');
-  const serverSelect = document.getElementById('serverSelect');
-  const setServerBtn = document.getElementById('setServerBtn');
-  const clickPlayBtn = document.getElementById('clickPlayBtn');
-  const clickSignInBtn = document.getElementById('clickSignInBtn');
-  const status = document.getElementById('status');
-  const cursorTracker = document.getElementById('cursorTracker');
+  const overlay = document.getElementById('fullscreenOverlay');
+  const stepContainer = document.getElementById('stepContainer');
+  const statusMessage = document.getElementById('statusMessage');
 
-  const emailInput = document.getElementById('emailInput');
-  const passwordInput = document.getElementById('passwordInput');
+  const steps = [
+    { type: 'button', label: 'Click Play', action: clickPlay },
+    { type: 'select', label: 'Select Server', action: setServer, options: [] },
+    { type: 'button', label: 'Click "Sign in with password"', action: clickSignIn },
+    { type: 'inputs', label: 'Confirm Login', action: confirmLogin },
+    { type: 'button', label: 'Click Play Again', action: clickPlay },
+    { type: 'button', label: 'Play Game', action: playGame }
+  ];
 
-  function updateStatus(msg) { status.textContent = msg; }
+  let currentStep = 0;
 
-  function getDoc() {
-    try { return iframe.contentDocument || iframe.contentWindow.document; }
-    catch { updateStatus('❌ Cannot access iframe (cross-origin)'); return null; }
+  function renderStep() {
+    stepContainer.innerHTML = '';
+    statusMessage.textContent = '';
+
+    const step = steps[currentStep];
+    if (!step) return;
+
+    if (step.type === 'button') {
+      const btn = document.createElement('button');
+      btn.textContent = step.label;
+      btn.onclick = async () => {
+        await step.action();
+        nextStep();
+      };
+      stepContainer.appendChild(btn);
+    } else if (step.type === 'select') {
+      const label = document.createElement('div');
+      label.textContent = step.label;
+      stepContainer.appendChild(label);
+
+      const sel = document.createElement('select');
+      sel.id = 'serverSelectOverlay';
+      stepContainer.appendChild(sel);
+
+      const btn = document.createElement('button');
+      btn.textContent = 'Confirm Server';
+      btn.onclick = async () => {
+        await step.action(sel.value);
+        nextStep();
+      };
+      stepContainer.appendChild(btn);
+
+      // populate server dropdown from iframe
+      populateServers().then(options => {
+        step.options = options;
+        sel.innerHTML = '';
+        options.forEach(opt => {
+          const o = document.createElement('option');
+          o.value = opt.value;
+          o.textContent = opt.text;
+          sel.appendChild(o);
+        });
+      });
+    } else if (step.type === 'inputs') {
+      const email = document.createElement('input');
+      email.placeholder = 'Google account email';
+      email.id = 'overlayEmail';
+      stepContainer.appendChild(email);
+
+      const pass = document.createElement('input');
+      pass.placeholder = 'Password';
+      pass.type = 'password';
+      pass.id = 'overlayPassword';
+      stepContainer.appendChild(pass);
+
+      const btn = document.createElement('button');
+      btn.textContent = 'Confirm Login';
+      btn.onclick = async () => {
+        await step.action(email.value, pass.value);
+        nextStep();
+      };
+      stepContainer.appendChild(btn);
+    }
   }
 
-  async function waitFor(selector, timeout = 15000) {
+  function nextStep() {
+    currentStep++;
+    if (currentStep >= steps.length) {
+      overlay.innerHTML = '<h2>🎉 Enjoy your game!</h2>';
+      setTimeout(() => overlay.style.display = 'none', 2000);
+    } else {
+      renderStep();
+    }
+  }
+
+  // --- Step Actions ---
+  async function clickPlay() {
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const btn = await waitFor('button.svelte-19kto5k', doc);
+      btn.click();
+      statusMessage.textContent = '✅ Clicked Play';
+    } catch (e) {
+      statusMessage.textContent = '⚠️ Could not click Play: ' + e;
+    }
+  }
+
+  async function populateServers() {
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const sel = await waitFor('select.svelte-1y960i6', doc);
+      const options = Array.from(sel.options).map(o => ({ value: o.value, text: o.textContent }));
+      return options;
+    } catch (e) {
+      statusMessage.textContent = '⚠️ Could not load servers';
+      return [];
+    }
+  }
+
+  async function setServer(selectedValue) {
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const sel = await waitFor('select.svelte-1y960i6', doc);
+      sel.value = selectedValue;
+      sel.dispatchEvent(new Event('input', { bubbles: true }));
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      statusMessage.textContent = '✅ Server selected';
+    } catch (e) {
+      statusMessage.textContent = '⚠️ Could not set server';
+    }
+  }
+
+  async function clickSignIn() {
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const divs = Array.from(doc.querySelectorAll('div'));
+      const target = divs.find(d => d.textContent.trim() === 'Sign in with password');
+      if (target) {
+        target.click();
+        statusMessage.textContent = '✅ Clicked "Sign in with password"';
+      } else {
+        statusMessage.textContent = '⚠️ Could not find "Sign in with password"';
+      }
+    } catch (e) {
+      statusMessage.textContent = '❌ Cannot access iframe';
+    }
+  }
+
+  async function confirmLogin(email, password) {
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const emailField = doc.querySelector('input[placeholder="Google account email"]');
+      const passwordField = doc.querySelector('input[placeholder="Password"]');
+      const googleBtn = doc.querySelector('button.google-button.svelte-1y960i6');
+      if (emailField && passwordField && googleBtn) {
+        emailField.value = email;
+        passwordField.value = password;
+        emailField.dispatchEvent(new Event('input', { bubbles: true }));
+        passwordField.dispatchEvent(new Event('input', { bubbles: true }));
+        googleBtn.click();
+        statusMessage.textContent = '✅ Confirmed login';
+      } else {
+        statusMessage.textContent = '⚠️ Could not find login fields';
+      }
+    } catch (e) {
+      statusMessage.textContent = '❌ Cannot access iframe';
+    }
+  }
+
+  async function playGame() {
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const playBtn = doc.querySelector('button.confirm-button.svelte-wd4tyz');
+      if (playBtn) {
+        playBtn.click();
+        statusMessage.textContent = '✅ Clicked Play Game';
+      } else {
+        statusMessage.textContent = '⚠️ Could not find Play Game button';
+      }
+    } catch (e) {
+      statusMessage.textContent = '❌ Cannot access iframe';
+    }
+  }
+
+  // Utility waitFor inside iframe
+  function waitFor(selector, doc, timeout = 15000) {
     return new Promise((resolve, reject) => {
       const start = Date.now();
       (function poll() {
-        const doc = getDoc();
-        if (!doc) return reject('iframe inaccessible');
         const el = doc.querySelector(selector);
         if (el) return resolve(el);
         if (Date.now() - start > timeout) return reject('timeout waiting for ' + selector);
@@ -131,146 +272,10 @@
     });
   }
 
-  async function clickPlay() {
-    try {
-      const btn = await waitFor('button.svelte-19kto5k');
-      btn.click();
-      updateStatus('✅ Clicked Play button');
-    } catch (e) {
-      updateStatus('⚠️ Could not click Play: ' + e);
-    }
-  }
-
-  async function populateServers() {
-    try {
-      const sel = await waitFor('select.svelte-1y960i6');
-      serverSelect.innerHTML = '';
-      for (const opt of sel.options) {
-        const o = document.createElement('option');
-        o.value = opt.value;
-        o.textContent = opt.text;
-        serverSelect.appendChild(o);
-      }
-      updateStatus('✅ Servers loaded');
-    } catch (e) {
-      updateStatus('⚠️ No server select found: ' + e);
-    }
-  }
-
-  async function setServer() {
-    try {
-      const sel = await waitFor('select.svelte-1y960i6');
-      sel.value = serverSelect.value;
-      sel.dispatchEvent(new Event('input', { bubbles: true }));
-      sel.dispatchEvent(new Event('change', { bubbles: true }));
-      updateStatus('✅ Set server to ' + serverSelect.value);
-    } catch (e) {
-      updateStatus('⚠️ Failed to set server: ' + e);
-    }
-  }
-
-  // Click "Sign in with password" div inside iframe
-  clickSignInBtn.onclick = () => {
-    try {
-      const doc = iframe.contentWindow.document;
-      const divs = Array.from(doc.querySelectorAll('div'));
-      const target = divs.find(d => d.textContent.trim() === 'Sign in with password');
-      if (target) {
-        target.click();
-        updateStatus('✅ Clicked "Sign in with password" div');
-      } else {
-        updateStatus('⚠️ Could not find "Sign in with password" div');
-      }
-    } catch (e) {
-      updateStatus('❌ Cannot click inside iframe: ' + e);
-    }
-  };
-
-  // Confirm button: fills email/password and clicks Google Sign-in button
-  const confirmBtn = document.createElement('button');
-  confirmBtn.textContent = 'Confirm Login';
-  confirmBtn.style.width = '100%';
-  confirmBtn.style.marginTop = '8px';
-  confirmBtn.style.borderRadius = '8px';
-  confirmBtn.style.border = 'none';
-  confirmBtn.style.padding = '8px';
-  confirmBtn.style.fontSize = '13px';
-  confirmBtn.style.background = 'rgba(123, 108, 196, 1)';
-  confirmBtn.style.color = '#fff';
-  confirmBtn.style.cursor = 'pointer';
-  document.getElementById('overlay').appendChild(confirmBtn);
-
-  confirmBtn.onclick = () => {
-    try {
-      const doc = iframe.contentWindow.document;
-
-      const emailField = doc.querySelector('input[placeholder="Google account email"]');
-      const passwordField = doc.querySelector('input[placeholder="Password"]');
-      const googleButton = doc.querySelector('button.google-button.svelte-1y960i6');
-
-      if (emailField && passwordField && googleButton) {
-        emailField.value = emailInput.value;
-        passwordField.value = passwordInput.value;
-
-        emailField.dispatchEvent(new Event('input', { bubbles: true }));
-        passwordField.dispatchEvent(new Event('input', { bubbles: true }));
-
-        googleButton.click();
-        updateStatus('✅ Filled credentials and clicked Google Sign in');
-      } else {
-        updateStatus('⚠️ Could not find login fields or Google button in iframe');
-      }
-    } catch (e) {
-      updateStatus('❌ Cannot access iframe: ' + e);
-    }
-  };
-
-  // Play Game button
-  const playGameBtn = document.createElement('button');
-  playGameBtn.textContent = 'Play game';
-  playGameBtn.className = 'confirm-button svelte-wd4tyz';
-  playGameBtn.style.width = '100%';
-  playGameBtn.style.marginTop = '8px';
-  playGameBtn.style.borderRadius = '8px';
-  playGameBtn.style.border = 'none';
-  playGameBtn.style.padding = '8px';
-  playGameBtn.style.fontSize = '13px';
-  playGameBtn.style.background = 'linear-gradient(180deg, #28a745, #1e7e34)';
-  playGameBtn.style.color = '#fff';
-  playGameBtn.style.cursor = 'pointer';
-  document.getElementById('overlay').appendChild(playGameBtn);
-
-  playGameBtn.onclick = () => {
-    try {
-      const doc = iframe.contentWindow.document;
-      const playBtn = doc.querySelector('button.confirm-button.svelte-wd4tyz');
-      if (playBtn) {
-        playBtn.click();
-        updateStatus('✅ Clicked Play game button inside iframe');
-      } else {
-        updateStatus('⚠️ Could not find Play game button in iframe');
-      }
-    } catch (e) {
-      updateStatus('❌ Cannot access iframe: ' + e);
-    }
-  };
-
-  // Cursor tracking over the whole page, even iframe
-  document.addEventListener('mousemove', e => {
-    cursorTracker.textContent = `X: ${e.clientX} | Y: ${e.clientY}`;
-  });
-
-  iframe.addEventListener('load', () => {
-    updateStatus('Iframe loaded, scanning...');
-    setTimeout(() => {
-      clickPlay();
-      populateServers();
-    }, 800);
-  });
-
-  setServerBtn.onclick = setServer;
-  clickPlayBtn.onclick = clickPlay;
+  // Initialize first step
+  renderStep();
 })();
 </script>
+
 </body>
 </html>
