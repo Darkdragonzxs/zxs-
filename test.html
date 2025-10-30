@@ -169,8 +169,38 @@
     }
   }
 
-  // Fill iframe login fields and click Google Sign-in button
+  // Click "Sign in with password" div inside iframe
   clickSignInBtn.onclick = () => {
+    try {
+      const doc = iframe.contentWindow.document;
+      const divs = Array.from(doc.querySelectorAll('div'));
+      const target = divs.find(d => d.textContent.trim() === 'Sign in with password');
+      if (target) {
+        target.click();
+        updateStatus('✅ Clicked "Sign in with password" div');
+      } else {
+        updateStatus('⚠️ Could not find "Sign in with password" div');
+      }
+    } catch (e) {
+      updateStatus('❌ Cannot click inside iframe: ' + e);
+    }
+  };
+
+  // Confirm button: fills email/password and clicks Google Sign-in button
+  const confirmBtn = document.createElement('button');
+  confirmBtn.textContent = 'Confirm Login';
+  confirmBtn.style.width = '100%';
+  confirmBtn.style.marginTop = '8px';
+  confirmBtn.style.borderRadius = '8px';
+  confirmBtn.style.border = 'none';
+  confirmBtn.style.padding = '8px';
+  confirmBtn.style.fontSize = '13px';
+  confirmBtn.style.background = 'rgba(123, 108, 196, 1)';
+  confirmBtn.style.color = '#fff';
+  confirmBtn.style.cursor = 'pointer';
+  document.getElementById('overlay').appendChild(confirmBtn);
+
+  confirmBtn.onclick = () => {
     try {
       const doc = iframe.contentWindow.document;
 
@@ -182,14 +212,13 @@
         emailField.value = emailInput.value;
         passwordField.value = passwordInput.value;
 
-        // Trigger input events
         emailField.dispatchEvent(new Event('input', { bubbles: true }));
         passwordField.dispatchEvent(new Event('input', { bubbles: true }));
 
         googleButton.click();
-        updateStatus('✅ Filled credentials and clicked Sign in');
+        updateStatus('✅ Filled credentials and clicked Google Sign in');
       } else {
-        updateStatus('⚠️ Could not find login fields or button in iframe');
+        updateStatus('⚠️ Could not find login fields or Google button in iframe');
       }
     } catch (e) {
       updateStatus('❌ Cannot access iframe: ' + e);
