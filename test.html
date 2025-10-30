@@ -40,7 +40,8 @@
   }
 
   #overlay select,
-  #overlay button {
+  #overlay button,
+  #overlay input {
     width: 100%;
     margin-top: 8px;
     border-radius: 8px;
@@ -88,6 +89,11 @@
     <button id="setServerBtn">Set Server</button>
     <button id="clickPlayBtn">Click Play</button>
     <button id="clickSignInBtn">Click “Sign in with password”</button>
+
+    <!-- Input fields for email/password -->
+    <input id="emailInput" type="text" placeholder="Google account email" />
+    <input id="passwordInput" type="password" placeholder="Password" />
+
     <div id="status">Waiting for iframe...</div>
   </div>
 
@@ -100,6 +106,9 @@
   const clickSignInBtn = document.getElementById('clickSignInBtn');
   const status = document.getElementById('status');
   const cursorTracker = document.getElementById('cursorTracker');
+
+  const emailInput = document.getElementById('emailInput');
+  const passwordInput = document.getElementById('passwordInput');
 
   function updateStatus(msg) { status.textContent = msg; }
 
@@ -160,20 +169,30 @@
     }
   }
 
-  // Direct click on "Sign in with password" div inside iframe
+  // Fill iframe login fields and click Google Sign-in button
   clickSignInBtn.onclick = () => {
     try {
       const doc = iframe.contentWindow.document;
-      const divs = Array.from(doc.querySelectorAll('div'));
-      const target = divs.find(d => d.textContent.trim() === 'Sign in with password');
-      if (target) {
-        target.click();
-        updateStatus('✅ Clicked "Sign in with password"');
+
+      const emailField = doc.querySelector('input[placeholder="Google account email"]');
+      const passwordField = doc.querySelector('input[placeholder="Password"]');
+      const googleButton = doc.querySelector('button.google-button.svelte-1y960i6');
+
+      if (emailField && passwordField && googleButton) {
+        emailField.value = emailInput.value;
+        passwordField.value = passwordInput.value;
+
+        // Trigger input events
+        emailField.dispatchEvent(new Event('input', { bubbles: true }));
+        passwordField.dispatchEvent(new Event('input', { bubbles: true }));
+
+        googleButton.click();
+        updateStatus('✅ Filled credentials and clicked Sign in');
       } else {
-        updateStatus('⚠️ Could not find "Sign in with password" div');
+        updateStatus('⚠️ Could not find login fields or button in iframe');
       }
     } catch (e) {
-      updateStatus('❌ Cannot click inside iframe: ' + e);
+      updateStatus('❌ Cannot access iframe: ' + e);
     }
   };
 
