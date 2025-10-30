@@ -20,6 +20,15 @@
     z-index: 1;
   }
 
+  /* Transparent layer for mouse tracking */
+  #mouseLayer {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    background: transparent;
+    pointer-events: none; /* will be temporarily enabled for tracking */
+  }
+
   #overlay {
     position: fixed;
     bottom: 10px;
@@ -78,7 +87,6 @@
     pointer-events: none;
   }
 
-  /* 🔍 Cursor tracker */
   #tracker {
     position: fixed;
     top: 8px;
@@ -96,6 +104,9 @@
 <body>
   <iframe id="gameFrame" src="/cloudmoon/game/com.roblox.client/" title="Cloudmoon Game"></iframe>
 
+  <!-- Transparent layer above iframe for mouse tracking -->
+  <div id="mouseLayer"></div>
+
   <div id="darkOverlay"></div>
   <div id="holeMessage">Sign in through the highlighted area</div>
 
@@ -111,7 +122,6 @@
     <div id="status">Waiting for iframe...</div>
   </div>
 
-  <!-- 👇 Cursor position tracker -->
   <div id="tracker">X: 0 | Y: 0</div>
 
 <script>
@@ -123,8 +133,6 @@
   const clickSignInBtn = document.getElementById('clickSignInBtn');
   const clickHoleBtn = document.getElementById('clickHoleBtn');
   const status = document.getElementById('status');
-  const darkOverlay = document.getElementById('darkOverlay');
-  const holeMessage = document.getElementById('holeMessage');
 
   function updateStatus(msg) { status.textContent = msg; }
 
@@ -241,7 +249,7 @@
   clickSignInBtn.onclick = clickSignIn;
 })();
 
-// 🧭 Cursor tracker logic
+// 🧭 Cursor tracker (works even over iframe)
 document.addEventListener('mousemove', e => {
   const tracker = document.getElementById('tracker');
   tracker.textContent = `X: ${e.clientX} | Y: ${e.clientY}`;
