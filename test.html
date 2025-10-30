@@ -76,9 +76,6 @@
 <body>
   <iframe id="gameFrame" src="/cloudmoon/game/com.roblox.client/" title="Cloudmoon Game"></iframe>
 
-  <!-- Dark overlay + message -->
-  <div id="darkOverlay"></div>
-
   <!-- Cursor tracker -->
   <div id="cursorTracker">X: 0 | Y: 0</div>
 
@@ -101,7 +98,6 @@
   const setServerBtn = document.getElementById('setServerBtn');
   const clickPlayBtn = document.getElementById('clickPlayBtn');
   const clickSignInBtn = document.getElementById('clickSignInBtn');
-  const clickHoleBtn = document.getElementById('clickHoleBtn');
   const status = document.getElementById('status');
   const cursorTracker = document.getElementById('cursorTracker');
 
@@ -179,22 +175,6 @@
     } catch (e) {
       updateStatus('❌ Cannot click inside iframe: ' + e);
     }
-  };
-
-  // Click inside the dark overlay hole
-  clickHoleBtn.onclick = () => {
-    const rect = iframe.getBoundingClientRect();
-    const x = rect.left + rect.width * 0.535;
-    const y = rect.top + rect.height * 0.71;
-    const clickEvent = new MouseEvent("click", {
-      view: window,
-      bubbles: true,
-      cancelable: true,
-      clientX: x,
-      clientY: y
-    });
-    document.elementFromPoint(x, y)?.dispatchEvent(clickEvent);
-    updateStatus(`🎯 Simulated click at ${x.toFixed(1)}, ${y.toFixed(1)}`);
   };
 
   // Cursor tracking over the whole page, even iframe
