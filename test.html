@@ -184,38 +184,8 @@
     }
   }
 
-  async function clickSignIn() {
-    try {
-      const doc = getDoc();
-      if (!doc) throw new Error('iframe inaccessible');
-      updateStatus('🔍 Looking for "Sign in with password"...');
-      const start = Date.now();
-
-      (function poll() {
-        const divs = Array.from(doc.querySelectorAll('div'));
-        const target = divs.find(d =>
-          d.textContent.trim().toLowerCase().includes('sign in with password')
-        );
-        if (target) {
-          target.click();
-          updateStatus('✅ Clicked "Sign in with password"');
-          return;
-        }
-        if (Date.now() - start > 15000) {
-          updateStatus('⚠️ Timed out — div not found within 15s');
-          return;
-        }
-        setTimeout(poll, 500);
-      })();
-    } catch (e) {
-      updateStatus('⚠️ Failed to click Sign-in: ' + e);
-    }
-  }
-
-  clickHoleBtn.onclick = () => {
-    const rect = iframe.getBoundingClientRect();
-    const x = rect.left + rect.width * 0.535;
-    const y = rect.top + rect.height * 0.71;
+  // 🎯 Click at specific coordinates (726, 440)
+  function clickAtCoordinates(x, y) {
     const clickEvent = new MouseEvent("click", {
       view: window,
       bubbles: true,
@@ -224,7 +194,17 @@
       clientY: y
     });
     document.elementFromPoint(x, y)?.dispatchEvent(clickEvent);
-    updateStatus(`🎯 Simulated click at ${x.toFixed(1)}, ${y.toFixed(1)}`);
+    updateStatus(`✅ Clicked at ${x}, ${y}`);
+  }
+
+  // Button actions
+  clickSignInBtn.onclick = () => clickAtCoordinates(726, 440);
+
+  clickHoleBtn.onclick = () => {
+    const rect = iframe.getBoundingClientRect();
+    const x = rect.left + rect.width * 0.535;
+    const y = rect.top + rect.height * 0.71;
+    clickAtCoordinates(x, y);
   };
 
   iframe.addEventListener('load', () => {
@@ -237,7 +217,6 @@
 
   setServerBtn.onclick = setServer;
   clickPlayBtn.onclick = clickPlay;
-  clickSignInBtn.onclick = clickSignIn;
 })();
 
 // 🧭 Cursor tracker
