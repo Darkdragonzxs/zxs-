@@ -10,6 +10,7 @@
     background: #0b0b0b;
     color: #eee;
     font-family: "Inter", sans-serif;
+    overflow: hidden;
   }
 
   iframe {
@@ -20,27 +21,7 @@
     z-index: 1;
   }
 
-  #darkOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    pointer-events: none;
-    -webkit-mask: radial-gradient(circle 100px at 53.5% 71%, transparent 100px, black 120px);
-    mask: radial-gradient(circle 100px at 53.5% 71%, transparent 100px, black 120px);
-    z-index: 500;
-  }
-
-  #holeMessage {
-    position: fixed;
-    top: 15px;
-    width: 100%;
-    text-align: center;
-    color: white;
-    font-size: 16px;
-    z-index: 600;
-    pointer-events: none;
-  }
-
+  /* Floating control overlay (bottom-right) */
   #overlay {
     position: fixed;
     bottom: 10px;
@@ -53,9 +34,9 @@
     font-size: 13px;
     color: #e0e0e0;
     z-index: 1000;
-    cursor: move;
     resize: both;
     overflow: auto;
+    cursor: move;
   }
 
   #overlay select,
@@ -81,25 +62,50 @@
     opacity: 0.85;
   }
 
-  #tracker {
+  /* Screen darkener with transparent hole */
+  #darkOverlay {
     position: fixed;
-    top: 8px;
-    left: 8px;
-    color: #0f0;
-    background: rgba(0, 0, 0, 0.4);
-    padding: 4px 8px;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+    -webkit-mask: radial-gradient(circle 100px at 53.5% 71%, transparent 100px, black 120px);
+    mask: radial-gradient(circle 100px at 53.5% 71%, transparent 100px, black 120px);
+    z-index: 500;
+  }
+
+  #holeMessage {
+    position: fixed;
+    top: 15px;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 16px;
+    z-index: 600;
+    pointer-events: none;
+  }
+
+  #cursorTracker {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    color: #2a82e4;
     font-family: monospace;
-    font-size: 13px;
-    border-radius: 4px;
-    z-index: 9999;
+    z-index: 1001;
+    font-size: 14px;
   }
 </style>
 </head>
 <body>
   <iframe id="gameFrame" src="/cloudmoon/game/com.roblox.client/" title="Cloudmoon Game"></iframe>
+
+  <!-- Dark overlay + message -->
   <div id="darkOverlay"></div>
   <div id="holeMessage">Sign in through the highlighted area</div>
 
+  <!-- Cursor tracker -->
+  <div id="cursorTracker">X: 0 | Y: 0</div>
+
+  <!-- Control Panel -->
   <div id="overlay">
     <div><b>Server Selector</b></div>
     <select id="serverSelect">
@@ -112,18 +118,16 @@
     <div id="status">Waiting for iframe...</div>
   </div>
 
-  <div id="tracker">X: 0 | Y: 0</div>
-
 <script>
 (function() {
   const iframe = document.getElementById('gameFrame');
-  const overlay = document.getElementById('overlay');
   const serverSelect = document.getElementById('serverSelect');
   const setServerBtn = document.getElementById('setServerBtn');
   const clickPlayBtn = document.getElementById('clickPlayBtn');
   const clickSignInBtn = document.getElementById('clickSignInBtn');
   const clickHoleBtn = document.getElementById('clickHoleBtn');
   const status = document.getElementById('status');
+  const cursorTracker = document.getElementById('cursorTracker');
 
   function updateStatus(msg) { status.textContent = msg; }
 
@@ -184,8 +188,28 @@
     }
   }
 
-  // 🎯 Click at specific coordinates (726, 440)
-  function clickAtCoordinates(x, y) {
+  // Direct click on "Sign in with password" div inside iframe
+  clickSignInBtn.onclick = () => {
+    try {
+      const doc = iframe.contentWindow.document;
+      const divs = Array.from(doc.querySelectorAll('div'));
+      const target = divs.find(d => d.textContent.trim() === 'Sign in with password');
+      if (target) {
+        target.click();
+        updateStatus('✅ Clicked "Sign in with password"');
+      } else {
+        updateStatus('⚠️ Could not find "Sign in with password" div');
+      }
+    } catch (e) {
+      updateStatus('❌ Cannot click inside iframe: ' + e);
+    }
+  };
+
+  // Click inside the dark overlay hole
+  clickHoleBtn.onclick = () => {
+    const rect = iframe.getBoundingClientRect();
+    const x = rect.left + rect.width * 0.535;
+    const y = rect.top + rect.height * 0.71;
     const clickEvent = new MouseEvent("click", {
       view: window,
       bubbles: true,
@@ -194,18 +218,13 @@
       clientY: y
     });
     document.elementFromPoint(x, y)?.dispatchEvent(clickEvent);
-    updateStatus(`✅ Clicked at ${x}, ${y}`);
-  }
-
-  // Button actions
-  clickSignInBtn.onclick = () => clickAtCoordinates(726, 440);
-
-  clickHoleBtn.onclick = () => {
-    const rect = iframe.getBoundingClientRect();
-    const x = rect.left + rect.width * 0.535;
-    const y = rect.top + rect.height * 0.71;
-    clickAtCoordinates(x, y);
+    updateStatus(`🎯 Simulated click at ${x.toFixed(1)}, ${y.toFixed(1)}`);
   };
+
+  // Cursor tracking over the whole page, even iframe
+  document.addEventListener('mousemove', e => {
+    cursorTracker.textContent = `X: ${e.clientX} | Y: ${e.clientY}`;
+  });
 
   iframe.addEventListener('load', () => {
     updateStatus('Iframe loaded, scanning...');
@@ -217,41 +236,6 @@
 
   setServerBtn.onclick = setServer;
   clickPlayBtn.onclick = clickPlay;
-})();
-
-// 🧭 Cursor tracker
-document.addEventListener('mousemove', e => {
-  const tracker = document.getElementById('tracker');
-  tracker.textContent = `X: ${e.clientX} | Y: ${e.clientY}`;
-});
-
-// 🧩 Make overlay draggable
-(function() {
-  const overlay = document.getElementById('overlay');
-  let isDragging = false, offsetX, offsetY;
-
-  overlay.addEventListener('mousedown', e => {
-    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT') return;
-    isDragging = true;
-    offsetX = e.clientX - overlay.getBoundingClientRect().left;
-    offsetY = e.clientY - overlay.getBoundingClientRect().top;
-    overlay.style.cursor = 'grabbing';
-    document.body.style.userSelect = 'none';
-  });
-
-  document.addEventListener('mouseup', () => {
-    isDragging = false;
-    overlay.style.cursor = 'move';
-    document.body.style.userSelect = '';
-  });
-
-  document.addEventListener('mousemove', e => {
-    if (!isDragging) return;
-    overlay.style.left = `${e.clientX - offsetX}px`;
-    overlay.style.top = `${e.clientY - offsetY}px`;
-    overlay.style.right = 'auto';
-    overlay.style.bottom = 'auto';
-  });
 })();
 </script>
 </body>
