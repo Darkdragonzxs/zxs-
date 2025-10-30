@@ -225,6 +225,36 @@
     }
   };
 
+  // Play Game button
+  const playGameBtn = document.createElement('button');
+  playGameBtn.textContent = 'Play game';
+  playGameBtn.className = 'confirm-button svelte-wd4tyz';
+  playGameBtn.style.width = '100%';
+  playGameBtn.style.marginTop = '8px';
+  playGameBtn.style.borderRadius = '8px';
+  playGameBtn.style.border = 'none';
+  playGameBtn.style.padding = '8px';
+  playGameBtn.style.fontSize = '13px';
+  playGameBtn.style.background = 'linear-gradient(180deg, #28a745, #1e7e34)';
+  playGameBtn.style.color = '#fff';
+  playGameBtn.style.cursor = 'pointer';
+  document.getElementById('overlay').appendChild(playGameBtn);
+
+  playGameBtn.onclick = () => {
+    try {
+      const doc = iframe.contentWindow.document;
+      const playBtn = doc.querySelector('button.confirm-button.svelte-wd4tyz');
+      if (playBtn) {
+        playBtn.click();
+        updateStatus('✅ Clicked Play game button inside iframe');
+      } else {
+        updateStatus('⚠️ Could not find Play game button in iframe');
+      }
+    } catch (e) {
+      updateStatus('❌ Cannot access iframe: ' + e);
+    }
+  };
+
   // Cursor tracking over the whole page, even iframe
   document.addEventListener('mousemove', e => {
     cursorTracker.textContent = `X: ${e.clientX} | Y: ${e.clientY}`;
