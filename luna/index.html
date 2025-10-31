@@ -5,35 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cloudmoon Game Loader</title>
 <style>
-  body {
+body {
     margin: 0;
     background: #0b0b0b;
     font-family: "Inter", sans-serif;
     overflow: hidden;
-  }
+}
 
-  iframe {
+iframe {
     width: 100vw;
     height: 100vh;
     border: none;
     position: relative;
     z-index: 1;
-  }
+}
 
-  /* Logo */
-  #logo {
+/* Logo */
+#logo {
     position: fixed;
     top: 16px;
     left: 16px;
     width: 60px;
-    height: auto;
     z-index: 5000;
-    pointer-events: none;
-  }
+}
 
-  /* Overlay */
-  #fullscreenOverlay,
-  #welcomeScreen {
+/* Liquid glass fullscreen overlay */
+#fullscreenOverlay {
     position: fixed;
     inset: 0;
     display: flex;
@@ -47,155 +44,96 @@
     z-index: 2000;
     color: #eaeaea;
     text-align: center;
-    opacity: 1;
-    transition: opacity 0.6s ease-in-out;
-  }
+    padding: 20px;
+}
 
-  #welcomeScreen {
-    z-index: 3000;
-  }
-
-  /* Text */
-  #welcomeScreen h1 {
-    font-size: 3rem;
-    margin-bottom: 12px;
-    color: #ffffff;
-  }
-
-  #welcomeScreen p {
-    font-size: 1.2rem;
-    margin-bottom: 20px;
-    color: #d0d0d0;
-  }
-
-  /* Buttons */
-  button {
-    padding: 14px 28px;
-    font-size: 16px;
-    border-radius: 12px;
-    border: none;
-    cursor: pointer;
-    background: #3a3f45;
-    color: #f0f0f0;
-    text-align: center;
-    font-weight: 500;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-    transition: all 0.2s ease;
-  }
-
-  button:hover {
-    background: #4c5158;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.3);
-  }
-
-  button:active {
-    background: #35393f;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-  }
-
-  button:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(138,180,248,0.4);
-  }
-
-  /* Inputs and selects */
-  input, select {
+#fullscreenOverlay button,
+#fullscreenOverlay select,
+#fullscreenOverlay input {
     width: 260px;
     margin: 8px 0;
     padding: 12px;
     font-size: 15px;
     border-radius: 12px;
-    border: 1px solid #555;
-    background: #2c2f33;
-    color: #eee;
-    box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
-    text-align: center;
-    transition: all 0.2s ease;
-  }
-
-  input:focus, select:focus {
+    border: none;
     outline: none;
-    border-color: #8ab4f8;
-    box-shadow: 0 0 8px rgba(138,180,248,0.5) inset;
-  }
+    transition: 0.25s ease, transform 0.2s;
+    color: white;
+    cursor: pointer;
+}
 
-  /* Steps */
-  .step {
-    opacity: 0;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-  }
+#fullscreenOverlay button {
+    background: linear-gradient(145deg, rgba(72, 80, 90, 0.9), rgba(55, 60, 65, 0.8));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 0 6px rgba(255,255,255,0.1), 0 0 10px rgba(0,0,0,0.3);
+}
 
-  .step.active {
-    opacity: 1;
-    display: flex;
-  }
+#fullscreenOverlay button:hover {
+    background: linear-gradient(145deg, rgba(90, 98, 108, 0.95), rgba(65, 70, 75, 0.85));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
 
-  /* Dialogue box */
-  #dialogueBox {
+#fullscreenOverlay input,
+#fullscreenOverlay select {
+    background: rgba(40, 40, 40, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.4);
+}
+
+#dialogueBox {
     margin-top: 12px;
     padding: 12px 18px;
     width: 240px;
     font-size: 14px;
     background: rgba(50, 50, 50, 0.45);
     border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
     color: #cfd4da;
     text-align: center;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  }
+}
 
-  #statusMessage {
+#statusMessage {
     margin-top: 20px;
     font-size: 17px;
-    color: #f0f0f0;
-  }
+    color: #aaa;
+    transition: opacity 0.3s ease;
+}
 
-  #loadingBarContainer {
+/* Loading bar */
+#loadingBarContainer {
     width: 260px;
     height: 10px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(200, 200, 200, 0.2);
     border-radius: 8px;
     overflow: hidden;
     margin-top: 20px;
     display: none;
-  }
+}
 
-  #loadingBar {
+#loadingBar {
     width: 0%;
     height: 100%;
-    background: linear-gradient(90deg, #0f0f0f, #A9A9A9);
+    background: linear-gradient(90deg, #aaa, #888);
     border-radius: 8px;
-    transition: width 0.6s ease;
-  }
-
-  #blocker {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0);
-    z-index: 4000;
-    display: none;
-  }
+    transition: width 0.3s ease;
+}
 </style>
 </head>
 <body>
 <img src="/assets/images/luna.png" alt=".LUNA Logo" id="logo">
+<iframe src="https://zxs.comet.lat/cloudmoon/game/com.roblox.client/"></iframe>
 
-<iframe src="/cloudmoon/game/com.roblox.client/"></iframe>
-
-<div id="welcomeScreen">
-  <h1>Welcome to .LUNA.</h1>
-  <p>Your ultimate cloud gaming experience starts now.</p>
-  <button id="enterBtn">Enter</button>
-</div>
-
-<div id="fullscreenOverlay" style="display:none;">
+<div id="fullscreenOverlay">
   <h2 id="titleText">Click Play</h2>
 
-  <button id="playBtn" class="step active">Play</button>
+  <!-- Step 1 -->
+  <button id="playBtn">Play</button>
 
-  <div id="serverSelectContainer" class="step">
+  <!-- Step 2 -->
+  <div id="serverSelectContainer" style="display:none;">
     <h3>Select Server</h3>
     <select id="serverSelect">
       <option>US West</option>
@@ -206,25 +144,26 @@
     <button id="nextServer">Next</button>
   </div>
 
-  <div id="signInPasswordContainer" class="step">
+  <!-- Step 3 -->
+  <div id="signInPasswordContainer" style="display:none;">
     <button id="signInPasswordBtn">Sign in with password</button>
   </div>
 
-  <div id="loginContainer" class="step">
+  <!-- Step 4 -->
+  <div id="loginContainer" style="display:none;">
     <input type="text" placeholder="Google account email">
     <input type="password" placeholder="Password">
     <div id="dialogueBox">Make sure to use your Cloudmoon credentials.</div>
-    <div style="margin-top:8px; font-size:12px; color:#aaa; text-align:center;">
-      We never store your Google credentials. Use at your own risk.
-    </div>
     <button id="confirmLogin">Sign in</button>
   </div>
 
-  <div id="clickPlayContainer" class="step">
+  <!-- Step 5 (hidden during loading) -->
+  <div id="clickPlayContainer" style="display:none;">
     <button id="clickPlayBtn">Click Play</button>
   </div>
 
-  <div id="finalPlayContainer" class="step">
+  <!-- Step 6 (hidden during loading) -->
+  <div id="finalPlayContainer" style="display:none;">
     <button id="finalPlayBtn">Play Game</button>
   </div>
 
@@ -232,19 +171,7 @@
   <div id="statusMessage"></div>
 </div>
 
-<div id="blocker"></div>
-
 <script>
-const welcomeScreen = document.getElementById("welcomeScreen");
-const enterBtn = document.getElementById("enterBtn");
-const overlay = document.getElementById("fullscreenOverlay");
-const blocker = document.getElementById("blocker");
-
-enterBtn.onclick = () => {
-  welcomeScreen.style.display = "none";
-  overlay.style.display = "flex";
-};
-
 const steps = [
   "playBtn",
   "serverSelectContainer",
@@ -255,6 +182,7 @@ const steps = [
 ];
 
 let currentStep = 0;
+const overlay = document.getElementById("fullscreenOverlay");
 const titleText = document.getElementById("titleText");
 const statusMsg = document.getElementById("statusMessage");
 const loadingBarContainer = document.getElementById("loadingBarContainer");
@@ -263,11 +191,8 @@ const loadingBar = document.getElementById("loadingBar");
 function showStep(index) {
   steps.forEach((id, i) => {
     const el = document.getElementById(id);
-    if (i === index) {
-      el.classList.add("active");
-    } else {
-      el.classList.remove("active");
-    }
+    el.style.display = i === index ? "flex" : "none";
+    if(el.tagName === "DIV") { el.style.flexDirection = "column"; el.style.alignItems = "center"; }
   });
   titleText.textContent = [
     "Click Play",
@@ -277,50 +202,55 @@ function showStep(index) {
     "Click Play",
     "Play Game"
   ][index];
+
+  // hide loading if showing any step
+  loadingBarContainer.style.display = "none";
+  loadingBar.style.width = "0%";
 }
 
 function nextStep() {
   currentStep++;
-  if (currentStep < steps.length) showStep(currentStep);
-}
-
-function disableAllInputs(disabled) {
-  document.querySelectorAll("button, select, input").forEach(el => el.disabled = disabled);
-  blocker.style.display = disabled ? "block" : "none";
+  // After step 4 (login), show loading
+  if(currentStep === 4) {
+    startLoading();
+  } else if(currentStep < steps.length) {
+    showStep(currentStep);
+  }
 }
 
 function startLoading() {
-  disableAllInputs(true);
+  // hide all buttons/containers
+  steps.forEach(id => document.getElementById(id).style.display = "none");
   loadingBarContainer.style.display = "block";
   statusMsg.textContent = "Loading...";
-  let progress = 0;
-  const interval = setInterval(() => {
-    progress += Math.random() * 8;
-    loadingBar.style.width = Math.min(progress, 100) + "%";
-    if (progress >= 100) {
-      clearInterval(interval);
-      disableAllInputs(false);
-      loadingBar.style.width = "100%";
-      statusMsg.textContent = "";
+
+  let duration = 3000 + Math.random() * 2000;
+  let start = null;
+
+  function animate(timestamp) {
+    if(!start) start = timestamp;
+    let progress = Math.min((timestamp - start) / duration, 1);
+    loadingBar.style.width = progress * 100 + "%";
+    if(progress < 1) requestAnimationFrame(animate);
+    else {
+      statusMsg.textContent = "Launch complete!";
+      // After loading, reveal the next step (clickPlayContainer)
+      currentStep++;
+      showStep(currentStep);
     }
-  }, 200);
+  }
+  requestAnimationFrame(animate);
 }
 
-function finishLoading() {
-  statusMsg.textContent = "Enjoy your game!";
-  loadingBarContainer.style.display = "none";
-}
-
+// Bind buttons
 document.getElementById("playBtn").onclick = nextStep;
 document.getElementById("nextServer").onclick = nextStep;
 document.getElementById("signInPasswordBtn").onclick = nextStep;
-document.getElementById("confirmLogin").onclick = () => {
-  startLoading();
-  nextStep();
-};
+document.getElementById("confirmLogin").onclick = nextStep;
 document.getElementById("clickPlayBtn").onclick = nextStep;
-document.getElementById("finalPlayBtn").onclick = finishLoading;
+document.getElementById("finalPlayBtn").onclick = nextStep;
 
+// Start with first step
 showStep(currentStep);
 </script>
 </body>
