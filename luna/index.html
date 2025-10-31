@@ -20,15 +20,6 @@ iframe {
     z-index: 1;
 }
 
-/* Logo */
-#logo {
-    position: fixed;
-    top: 16px;
-    left: 16px;
-    width: 60px;
-    z-index: 5000;
-}
-
 /* Liquid glass fullscreen overlay */
 #fullscreenOverlay {
     position: fixed;
@@ -98,15 +89,14 @@ iframe {
 #statusMessage {
     margin-top: 20px;
     font-size: 17px;
-    color: #aaa;
-    transition: opacity 0.3s ease;
+    color: #8ab4f8;
 }
 
 /* Loading bar */
 #loadingBarContainer {
     width: 260px;
     height: 10px;
-    background: rgba(200, 200, 200, 0.2);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     overflow: hidden;
     margin-top: 20px;
@@ -116,142 +106,209 @@ iframe {
 #loadingBar {
     width: 0%;
     height: 100%;
-    background: linear-gradient(90deg, #aaa, #888);
+    background: linear-gradient(90deg, #2a82e4, #1b66b3);
     border-radius: 8px;
-    transition: width 0.3s ease;
+    transition: width 0.3s linear;
 }
 </style>
 </head>
 <body>
-<img src="/assets/images/luna.png" alt=".LUNA Logo" id="logo">
-<iframe src="https://zxs.comet.lat/cloudmoon/game/com.roblox.client/"></iframe>
+
+<iframe id="gameFrame" src="/cloudmoon/game/com.roblox.client/" title="Cloudmoon Game"></iframe>
 
 <div id="fullscreenOverlay">
-  <h2 id="titleText">Click Play</h2>
-
-  <!-- Step 1 -->
-  <button id="playBtn">Play</button>
-
-  <!-- Step 2 -->
-  <div id="serverSelectContainer" style="display:none;">
-    <h3>Select Server</h3>
-    <select id="serverSelect">
-      <option>US West</option>
-      <option>US East</option>
-      <option>Europe</option>
-      <option>Asia</option>
-    </select>
-    <button id="nextServer">Next</button>
-  </div>
-
-  <!-- Step 3 -->
-  <div id="signInPasswordContainer" style="display:none;">
-    <button id="signInPasswordBtn">Sign in with password</button>
-  </div>
-
-  <!-- Step 4 -->
-  <div id="loginContainer" style="display:none;">
-    <input type="text" placeholder="Google account email">
-    <input type="password" placeholder="Password">
-    <div id="dialogueBox">Make sure to use your Cloudmoon credentials.</div>
-    <button id="confirmLogin">Sign in</button>
-  </div>
-
-  <!-- Step 5 (hidden during loading) -->
-  <div id="clickPlayContainer" style="display:none;">
-    <button id="clickPlayBtn">Click Play</button>
-  </div>
-
-  <!-- Step 6 (hidden during loading) -->
-  <div id="finalPlayContainer" style="display:none;">
-    <button id="finalPlayBtn">Play Game</button>
-  </div>
-
+  <div id="stepContainer"></div>
   <div id="loadingBarContainer"><div id="loadingBar"></div></div>
   <div id="statusMessage"></div>
 </div>
 
 <script>
-const steps = [
-  "playBtn",
-  "serverSelectContainer",
-  "signInPasswordContainer",
-  "loginContainer",
-  "clickPlayContainer",
-  "finalPlayContainer"
-];
+(function() {
+  const iframe = document.getElementById('gameFrame');
+  const overlay = document.getElementById('fullscreenOverlay');
+  const stepContainer = document.getElementById('stepContainer');
+  const statusMessage = document.getElementById('statusMessage');
+  const loadingBarContainer = document.getElementById('loadingBarContainer');
+  const loadingBar = document.getElementById('loadingBar');
 
-let currentStep = 0;
-const overlay = document.getElementById("fullscreenOverlay");
-const titleText = document.getElementById("titleText");
-const statusMsg = document.getElementById("statusMessage");
-const loadingBarContainer = document.getElementById("loadingBarContainer");
-const loadingBar = document.getElementById("loadingBar");
+  const steps = [
+    { type: 'button', label: 'Click Play', action: clickPlay },
+    { type: 'select', label: 'Select Server', action: setServer, options: [] },
+    { type: 'button', label: 'Click "Sign in with password"', action: clickSignIn },
+    { type: 'inputs', label: 'Confirm Login', action: confirmLogin },
+    { type: 'button', label: 'Click Play Again', action: clickPlay },
+    { type: 'button', label: 'Play Game', action: playGame }
+  ];
 
-function showStep(index) {
-  steps.forEach((id, i) => {
-    const el = document.getElementById(id);
-    el.style.display = i === index ? "flex" : "none";
-    if(el.tagName === "DIV") { el.style.flexDirection = "column"; el.style.alignItems = "center"; }
-  });
-  titleText.textContent = [
-    "Click Play",
-    "Select Server",
-    "Click Sign in with Password",
-    "Confirm Login",
-    "Click Play",
-    "Play Game"
-  ][index];
+  let currentStep = 0;
 
-  // hide loading if showing any step
-  loadingBarContainer.style.display = "none";
-  loadingBar.style.width = "0%";
-}
+  function renderStep() {
+    stepContainer.innerHTML = '';
+    statusMessage.textContent = '';
+    loadingBarContainer.style.display = 'none';
+    loadingBar.style.width = '0%';
 
-function nextStep() {
-  currentStep++;
-  // After step 4 (login), show loading
-  if(currentStep === 4) {
-    startLoading();
-  } else if(currentStep < steps.length) {
-    showStep(currentStep);
-  }
-}
+    const step = steps[currentStep];
+    if (!step) return;
 
-function startLoading() {
-  // hide all buttons/containers
-  steps.forEach(id => document.getElementById(id).style.display = "none");
-  loadingBarContainer.style.display = "block";
-  statusMsg.textContent = "Loading...";
+    if (step.type === 'button') {
+      const btn = document.createElement('button');
+      btn.textContent = step.label;
+      btn.onclick = async () => { await step.action(); nextStep(); };
+      stepContainer.appendChild(btn);
+    } else if (step.type === 'select') {
+      const label = document.createElement('div');
+      label.textContent = step.label;
+      stepContainer.appendChild(label);
 
-  let duration = 3000 + Math.random() * 2000;
-  let start = null;
+      const sel = document.createElement('select');
+      sel.id = 'serverSelectOverlay';
+      stepContainer.appendChild(sel);
 
-  function animate(timestamp) {
-    if(!start) start = timestamp;
-    let progress = Math.min((timestamp - start) / duration, 1);
-    loadingBar.style.width = progress * 100 + "%";
-    if(progress < 1) requestAnimationFrame(animate);
-    else {
-      statusMsg.textContent = "Launch complete!";
-      // After loading, reveal the next step (clickPlayContainer)
-      currentStep++;
-      showStep(currentStep);
+      const btn = document.createElement('button');
+      btn.textContent = 'Confirm Server';
+      btn.onclick = async () => { await step.action(sel.value); nextStep(); };
+      stepContainer.appendChild(btn);
+
+      populateServers().then(options => {
+        step.options = options;
+        sel.innerHTML = '';
+        options.forEach(opt => {
+          const o = document.createElement('option');
+          o.value = opt.value;
+          o.textContent = opt.text;
+          sel.appendChild(o);
+        });
+      });
+    } else if (step.type === 'inputs') {
+      const email = document.createElement('input');
+      email.placeholder = 'Google account email';
+      email.id = 'overlayEmail';
+      stepContainer.appendChild(email);
+
+      const pass = document.createElement('input');
+      pass.placeholder = 'Password';
+      pass.type = 'password';
+      pass.id = 'overlayPassword';
+      stepContainer.appendChild(pass);
+
+      const btn = document.createElement('button');
+      btn.textContent = 'Confirm Login';
+      btn.onclick = async () => { 
+        await step.action(email.value, pass.value); 
+        startLoading();
+      };
+      stepContainer.appendChild(btn);
     }
   }
-  requestAnimationFrame(animate);
-}
 
-// Bind buttons
-document.getElementById("playBtn").onclick = nextStep;
-document.getElementById("nextServer").onclick = nextStep;
-document.getElementById("signInPasswordBtn").onclick = nextStep;
-document.getElementById("confirmLogin").onclick = nextStep;
-document.getElementById("clickPlayBtn").onclick = nextStep;
-document.getElementById("finalPlayBtn").onclick = nextStep;
+  function nextStep() {
+    currentStep++;
+    renderStep();
+  }
 
-// Start with first step
-showStep(currentStep);
+  function startLoading() {
+    stepContainer.innerHTML = '';
+    loadingBarContainer.style.display = 'block';
+    statusMessage.textContent = 'Loading...';
+    let duration = 3000 + Math.random() * 2000;
+    let start = null;
+
+    function animate(timestamp) {
+      if(!start) start = timestamp;
+      let progress = Math.min((timestamp - start)/duration,1);
+      loadingBar.style.width = (progress*100)+'%';
+      if(progress < 1) requestAnimationFrame(animate);
+      else statusMessage.textContent = 'Launch complete!';
+    }
+    requestAnimationFrame(animate);
+  }
+
+  // --- Step Actions ---
+  async function clickPlay() {
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const btn = await waitFor('button.svelte-19kto5k', doc);
+      btn.click();
+      statusMessage.textContent = '✅ Clicked Play';
+    } catch {
+      statusMessage.textContent = '⚠️ Could not click Play';
+    }
+  }
+
+  async function populateServers() {
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const sel = await waitFor('select.svelte-1y960i6', doc);
+      return Array.from(sel.options).map(o => ({ value:o.value,text:o.textContent }));
+    } catch {
+      statusMessage.textContent = '⚠️ Could not load servers';
+      return [];
+    }
+  }
+
+  async function setServer(selectedValue) {
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const sel = await waitFor('select.svelte-1y960i6', doc);
+      sel.value = selectedValue;
+      sel.dispatchEvent(new Event('input',{bubbles:true}));
+      sel.dispatchEvent(new Event('change',{bubbles:true}));
+      statusMessage.textContent = '✅ Server selected';
+    } catch { statusMessage.textContent = '⚠️ Could not set server'; }
+  }
+
+  async function clickSignIn() {
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const divs = Array.from(doc.querySelectorAll('div'));
+      const target = divs.find(d => d.textContent.trim()==='Sign in with password');
+      if(target){ target.click(); statusMessage.textContent='✅ Clicked Sign in'; }
+      else statusMessage.textContent='⚠️ Could not find Sign in';
+    } catch { statusMessage.textContent='❌ Cannot access iframe'; }
+  }
+
+  async function confirmLogin(email,password) {
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const emailField = doc.querySelector('input[placeholder="Google account email"]');
+      const passwordField = doc.querySelector('input[placeholder="Password"]');
+      const googleBtn = doc.querySelector('button.google-button.svelte-1y960i6');
+      if(emailField && passwordField && googleBtn){
+        emailField.value=email;
+        passwordField.value=password;
+        emailField.dispatchEvent(new Event('input',{bubbles:true}));
+        passwordField.dispatchEvent(new Event('input',{bubbles:true}));
+        googleBtn.click();
+        statusMessage.textContent='✅ Confirmed login';
+      } else statusMessage.textContent='⚠️ Could not find login fields';
+    } catch { statusMessage.textContent='❌ Cannot access iframe'; }
+  }
+
+  async function playGame() {
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const btn = doc.querySelector('button.confirm-button.svelte-wd4tyz');
+      if(btn){ btn.click(); statusMessage.textContent='✅ Clicked Play Game'; }
+      else statusMessage.textContent='⚠️ Could not find Play Game button';
+    } catch { statusMessage.textContent='❌ Cannot access iframe'; }
+  }
+
+  function waitFor(selector,doc,timeout=15000){
+    return new Promise((resolve,reject)=>{
+      const start=Date.now();
+      (function poll(){
+        const el=doc.querySelector(selector);
+        if(el) return resolve(el);
+        if(Date.now()-start>timeout) return reject('timeout '+selector);
+        setTimeout(poll,250);
+      })();
+    });
+  }
+
+  renderStep();
+})();
 </script>
+
 </body>
 </html>
