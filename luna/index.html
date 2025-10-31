@@ -16,8 +16,11 @@ iframe {
     width: 100vw;
     height: 100vh;
     border: none;
+    position: relative;
+    z-index: 1;
 }
 
+/* Glassy overlay */
 #fullscreenOverlay {
     position: fixed;
     inset: 0;
@@ -26,6 +29,7 @@ iframe {
     align-items: center;
     justify-content: center;
     backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
     background: rgba(25, 25, 25, 0.55);
     border: 1px solid rgba(255, 255, 255, 0.05);
     z-index: 2000;
@@ -43,6 +47,7 @@ iframe {
     font-size: 15px;
     border-radius: 12px;
     border: none;
+    outline: none;
     transition: 0.25s ease, transform 0.2s;
     color: white;
     cursor: pointer;
@@ -51,17 +56,34 @@ iframe {
 #fullscreenOverlay button {
     background: linear-gradient(145deg, rgba(72, 80, 90, 0.9), rgba(55, 60, 65, 0.8));
     border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 0 6px rgba(255,255,255,0.1), 0 0 10px rgba(0,0,0,0.3);
 }
 
 #fullscreenOverlay button:hover {
     background: linear-gradient(145deg, rgba(90, 98, 108, 0.95), rgba(65, 70, 75, 0.85));
     transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
 }
 
 #fullscreenOverlay input,
 #fullscreenOverlay select {
     background: rgba(40, 40, 40, 0.55);
     border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.4);
+}
+
+#dialogueBox {
+    margin-top: 12px;
+    padding: 12px 18px;
+    width: 240px;
+    font-size: 14px;
+    background: rgba(50, 50, 50, 0.45);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    color: #cfd4da;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
 #statusMessage {
@@ -70,6 +92,7 @@ iframe {
     color: #8ab4f8;
 }
 
+/* Loading bar */
 #loadingBarContainer {
     width: 260px;
     height: 10px;
@@ -87,12 +110,6 @@ iframe {
     border-radius: 8px;
     transition: width 0.3s linear;
 }
-
-#disclaimer {
-    font-size: 12px;
-    color: #b0b0b0;
-    margin-top: 6px;
-}
 </style>
 </head>
 <body>
@@ -107,6 +124,8 @@ iframe {
 
 <script>
 (function() {
+  const iframe = document.getElementById('gameFrame');
+  const overlay = document.getElementById('fullscreenOverlay');
   const stepContainer = document.getElementById('stepContainer');
   const statusMessage = document.getElementById('statusMessage');
   const loadingBarContainer = document.getElementById('loadingBarContainer');
@@ -132,107 +151,54 @@ iframe {
     const step = steps[currentStep];
     if (!step) return;
 
-    if (step.type === 'button') {
-      const btn = document.createElement('button');
-      btn.textContent = step.label;
-      btn.onclick = async () => { await step.action(); nextStep(); };
+    if(step.type==='button'){
+      const btn=document.createElement('button');
+      btn.textContent=step.label;
+      btn.onclick=async()=>{await step.action();nextStep();};
       stepContainer.appendChild(btn);
-    } 
-    else if (step.type === 'select') {
-      const label = document.createElement('div');
-      label.textContent = step.label;
-      stepContainer.appendChild(label);
-      const sel = document.createElement('select');
-      sel.id = 'serverSelectOverlay';
-      stepContainer.appendChild(sel);
-      const btn = document.createElement('button');
-      btn.textContent = 'Confirm Server';
-      btn.onclick = async () => { await step.action(sel.value); nextStep(); };
+    } else if(step.type==='select'){
+      const label=document.createElement('div'); label.textContent=step.label; stepContainer.appendChild(label);
+      const sel=document.createElement('select'); sel.id='serverSelectOverlay'; stepContainer.appendChild(sel);
+      const btn=document.createElement('button'); btn.textContent='Confirm Server';
+      btn.onclick=async()=>{await step.action(sel.value);nextStep();};
       stepContainer.appendChild(btn);
-      populateServers().then(options => {
-        if (!options || options.length === 0) {
-          statusMessage.textContent = '⚠ No servers found, skipping to final step...';
-          setTimeout(() => skipToFinalStep(), 1200);
-          return;
-        }
-        step.options = options;
-        sel.innerHTML = '';
-        options.forEach(opt => {
-          const o = document.createElement('option');
-          o.value = opt.value;
-          o.textContent = opt.text;
-          sel.appendChild(o);
-        });
+      populateServers().then(options=>{
+        step.options=options; sel.innerHTML='';
+        options.forEach(opt=>{ const o=document.createElement('option'); o.value=opt.value; o.textContent=opt.text; sel.appendChild(o); });
       });
-    } 
-    else if (step.type === 'inputs') {
-      const email = document.createElement('input');
-      email.placeholder = 'Google account email';
-      email.id = 'overlayEmail';
-      stepContainer.appendChild(email);
-      const pass = document.createElement('input');
-      pass.placeholder = 'Password';
-      pass.type = 'password';
-      pass.id = 'overlayPassword';
-      stepContainer.appendChild(pass);
-      const disclaimer = document.createElement('div');
-      disclaimer.id = 'disclaimer';
-      disclaimer.textContent = 'Your credentials are not stored.';
-      stepContainer.appendChild(disclaimer);
-      const btn = document.createElement('button');
-      btn.textContent = 'Confirm Login';
-      btn.onclick = async () => { await step.action(email.value, pass.value); startLoading(); };
+    } else if(step.type==='inputs'){
+      const email=document.createElement('input'); email.placeholder='Google account email'; email.id='overlayEmail'; stepContainer.appendChild(email);
+      const pass=document.createElement('input'); pass.placeholder='Password'; pass.type='password'; pass.id='overlayPassword'; stepContainer.appendChild(pass);
+      const btn=document.createElement('button'); btn.textContent='Confirm Login';
+      btn.onclick=async()=>{await step.action(email.value,pass.value); startLoading();};
       stepContainer.appendChild(btn);
     }
   }
 
-  function skipToFinalStep() {
-    currentStep = steps.length - 1;
-    renderStep();
-  }
+  function nextStep(){ currentStep++; if(currentStep<steps.length){ renderStep(); } }
 
-  function nextStep() {
-    currentStep++;
-    if (currentStep < steps.length) {
-      renderStep();
-    }
-  }
-
-  function startLoading() {
-    stepContainer.innerHTML = '';
-    loadingBarContainer.style.display = 'block';
-    statusMessage.textContent = 'Loading...';
-    let duration = 3000 + Math.random() * 2000;
-    let start = null;
-
-    function animate(timestamp) {
-      if (!start) start = timestamp;
-      let progress = Math.min((timestamp - start) / duration, 1);
-      loadingBar.style.width = (progress * 100) + '%';
-      if (progress < 1) requestAnimationFrame(animate);
-      else statusMessage.textContent = 'Launch complete!';
+  function startLoading(){
+    stepContainer.innerHTML=''; loadingBarContainer.style.display='block'; statusMessage.textContent='Loading...';
+    let duration=3000+Math.random()*2000; let start=null;
+    function animate(timestamp){
+      if(!start) start=timestamp;
+      let progress=Math.min((timestamp-start)/duration,1);
+      loadingBar.style.width=(progress*100)+'%';
+      if(progress<1) requestAnimationFrame(animate);
+      else statusMessage.textContent='Launch complete! Overlay stays visible';
     }
     requestAnimationFrame(animate);
   }
 
-  async function clickPlay() { statusMessage.textContent = '✅ Clicked Play'; }
-  async function clickSignIn() { statusMessage.textContent = '✅ Clicked Sign in'; }
-  async function confirmLogin() { statusMessage.textContent = '✅ Login confirmed'; }
-  async function clickPlayAgain() { statusMessage.textContent = '✅ Clicked Play Again'; }
-  async function playGame() { statusMessage.textContent = '✅ Clicked Play Game'; }
+  // Step actions
+  async function clickPlay(){ statusMessage.textContent='✅ Clicked Play'; }
+  async function clickPlayAgain(){ statusMessage.textContent='✅ Clicked Play Again'; }
+  async function clickSignIn(){ statusMessage.textContent='✅ Clicked Sign in'; }
+  async function playGame(){ statusMessage.textContent='✅ Clicked Play Game'; }
 
-  async function populateServers() {
-    // Simulate server load with 50% chance of failure
-    if (Math.random() < 0.5) return [];
-    return [
-      { value: 'us-west', text: 'US West' },
-      { value: 'us-east', text: 'US East' },
-      { value: 'europe', text: 'Europe' },
-      { value: 'asia', text: 'Asia' }
-    ];
-  }
-
-  async function setServer(val) { statusMessage.textContent = `✅ Selected ${val}`; }
+  async function populateServers(){ return [{value:'us-west',text:'US West'},{value:'us-east',text:'US East'},{value:'europe',text:'Europe'},{value:'asia',text:'Asia'}]; }
+  async function setServer(val){ statusMessage.textContent=`✅ Selected ${val}`; }
+  async function confirmLogin(email,password){ statusMessage.textContent='✅ Login confirmed'; }
 
   renderStep();
 })();
