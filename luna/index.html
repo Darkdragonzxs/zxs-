@@ -72,18 +72,10 @@ iframe {
     box-shadow: inset 0 0 6px rgba(0,0,0,0.4);
 }
 
-#dialogueBox {
-    margin-top: 12px;
-    padding: 12px 18px;
-    width: 240px;
-    font-size: 14px;
-    background: rgba(50, 50, 50, 0.45);
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(12px);
-    color: #cfd4da;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+#disclaimer {
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 4px;
 }
 
 #statusMessage {
@@ -133,7 +125,7 @@ iframe {
 
   const steps = [
     { type: 'button', label: 'Click Play', action: clickPlay },
-    { type: 'select', label: 'Select Server', action: setServer, options: [] },
+    { type: 'select', label: 'Select Server', action: setServer },
     { type: 'button', label: 'Click "Sign in with password"', action: clickSignIn },
     { type: 'inputs', label: 'Confirm Login', action: confirmLogin },
     { type: 'button', label: 'Click Play Again', action: clickPlayAgain },
@@ -157,29 +149,63 @@ iframe {
       btn.onclick=async()=>{await step.action();nextStep();};
       stepContainer.appendChild(btn);
     } else if(step.type==='select'){
-      const label=document.createElement('div'); label.textContent=step.label; stepContainer.appendChild(label);
-      const sel=document.createElement('select'); sel.id='serverSelectOverlay'; stepContainer.appendChild(sel);
-      const btn=document.createElement('button'); btn.textContent='Confirm Server';
+      const label=document.createElement('div'); 
+      label.textContent=step.label; 
+      stepContainer.appendChild(label);
+
+      const sel=document.createElement('select'); 
+      sel.id='serverSelectOverlay'; 
+      stepContainer.appendChild(sel);
+
+      const btn=document.createElement('button'); 
+      btn.textContent='Confirm Server';
       btn.onclick=async()=>{await step.action(sel.value);nextStep();};
       stepContainer.appendChild(btn);
-      populateServers().then(options=>{
-        step.options=options; sel.innerHTML='';
-        options.forEach(opt=>{ const o=document.createElement('option'); o.value=opt.value; o.textContent=opt.text; sel.appendChild(o); });
+
+      fetchServersFromIframe().then(options=>{
+        if(options.length===0){
+          statusMessage.textContent='⚠️ Servers failed to load. Skipping step...';
+          nextStep(); 
+        } else {
+          sel.innerHTML='';
+          options.forEach(opt=>{ const o=document.createElement('option'); o.value=opt.value; o.textContent=opt.text; sel.appendChild(o); });
+        }
       });
     } else if(step.type==='inputs'){
-      const email=document.createElement('input'); email.placeholder='Google account email'; email.id='overlayEmail'; stepContainer.appendChild(email);
-      const pass=document.createElement('input'); pass.placeholder='Password'; pass.type='password'; pass.id='overlayPassword'; stepContainer.appendChild(pass);
-      const btn=document.createElement('button'); btn.textContent='Confirm Login';
+      const email=document.createElement('input'); 
+      email.placeholder='Google account email'; 
+      email.id='overlayEmail'; 
+      stepContainer.appendChild(email);
+
+      const disclaimer=document.createElement('div'); 
+      disclaimer.id='disclaimer'; 
+      disclaimer.textContent='Use your Cloudmoon credentials'; 
+      stepContainer.appendChild(disclaimer);
+
+      const pass=document.createElement('input'); 
+      pass.placeholder='Password'; 
+      pass.type='password'; 
+      pass.id='overlayPassword'; 
+      stepContainer.appendChild(pass);
+
+      const btn=document.createElement('button'); 
+      btn.textContent='Confirm Login';
       btn.onclick=async()=>{await step.action(email.value,pass.value); startLoading();};
       stepContainer.appendChild(btn);
     }
   }
 
-  function nextStep(){ currentStep++; if(currentStep<steps.length){ renderStep(); } }
+  function nextStep(){ 
+    currentStep++; 
+    if(currentStep<steps.length){ renderStep(); } 
+  }
 
   function startLoading(){
-    stepContainer.innerHTML=''; loadingBarContainer.style.display='block'; statusMessage.textContent='Loading...';
-    let duration=3000+Math.random()*2000; let start=null;
+    stepContainer.innerHTML=''; 
+    loadingBarContainer.style.display='block'; 
+    statusMessage.textContent='Loading...';
+    let duration=3000+Math.random()*2000; 
+    let start=null;
     function animate(timestamp){
       if(!start) start=timestamp;
       let progress=Math.min((timestamp-start)/duration,1);
@@ -190,15 +216,60 @@ iframe {
     requestAnimationFrame(animate);
   }
 
-  // Step actions
-  async function clickPlay(){ statusMessage.textContent='✅ Clicked Play'; }
-  async function clickPlayAgain(){ statusMessage.textContent='✅ Clicked Play Again'; }
-  async function clickSignIn(){ statusMessage.textContent='✅ Clicked Sign in'; }
-  async function playGame(){ statusMessage.textContent='✅ Clicked Play Game'; }
+  // --- Step Actions ---
+  async function clickPlay(){ await clickButtonInIframe('button.svelte-19kto5k','Clicked Play'); }
+  async function clickPlayAgain(){ await clickButtonInIframe('button.svelte-19kto5k','Clicked Play Again'); }
+  async function clickSignIn(){ await clickButtonInIframe('div:contains("Sign in with password")','Clicked Sign in'); }
+  async function playGame(){ await clickButtonInIframe('button.confirm-button.svelte-wd4tyz','Clicked Play Game'); }
+  async function confirmLogin(email,password){
+    try{
+      const doc=iframe.contentDocument||iframe.contentWindow.document;
+      const emailField=doc.querySelector('input[placeholder="Google account email"]');
+      const passwordField=doc.querySelector('input[placeholder="Password"]');
+      const btn=doc.querySelector('button.google-button.svelte-1y960i6');
+      if(emailField&&passwordField&&btn){
+        emailField.value=email;
+        passwordField.value=password;
+        emailField.dispatchEvent(new Event('input',{bubbles:true}));
+        passwordField.dispatchEvent(new Event('input',{bubbles:true}));
+        btn.click();
+        statusMessage.textContent='✅ Login confirmed';
+      } else statusMessage.textContent='⚠️ Could not find login fields';
+    } catch(e){ statusMessage.textContent='❌ Cannot access iframe'; }
+  }
 
-  async function populateServers(){ return [{value:'us-west',text:'US West'},{value:'us-east',text:'US East'},{value:'europe',text:'Europe'},{value:'asia',text:'Asia'}]; }
-  async function setServer(val){ statusMessage.textContent=`✅ Selected ${val}`; }
-  async function confirmLogin(email,password){ statusMessage.textContent='✅ Login confirmed'; }
+  async function fetchServersFromIframe(){
+    try{
+      const doc=iframe.contentDocument||iframe.contentWindow.document;
+      const sel=doc.querySelector('select.svelte-1y960i6');
+      if(!sel) return [];
+      return Array.from(sel.options).map(o=>({value:o.value,text:o.textContent}));
+    } catch(e){ return []; }
+  }
+
+  async function setServer(val){
+    try{
+      const doc=iframe.contentDocument||iframe.contentWindow.document;
+      const sel=doc.querySelector('select.svelte-1y960i6');
+      if(sel){
+        sel.value=val;
+        sel.dispatchEvent(new Event('input',{bubbles:true}));
+        sel.dispatchEvent(new Event('change',{bubbles:true}));
+        statusMessage.textContent=`✅ Selected ${val}`;
+      } else statusMessage.textContent='⚠️ Server dropdown not found';
+    } catch(e){ statusMessage.textContent='❌ Cannot access iframe'; }
+  }
+
+  async function clickButtonInIframe(selector,text){
+    try{
+      const doc=iframe.contentDocument||iframe.contentWindow.document;
+      const btn=doc.querySelector(selector);
+      if(btn){
+        btn.click();
+        statusMessage.textContent=`✅ ${text}`;
+      } else statusMessage.textContent=`⚠️ Button not found (${text})`;
+    } catch(e){ statusMessage.textContent='❌ Cannot access iframe'; }
+  }
 
   renderStep();
 })();
