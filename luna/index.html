@@ -121,7 +121,6 @@ iframe {
   <div id="loadingBarContainer"><div id="loadingBar"></div></div>
   <div id="statusMessage"></div>
 </div>
-<!-- ... your existing HTML above ... -->
 
 <script>
 (function() {
@@ -143,7 +142,7 @@ iframe {
 
   let currentStep = 0;
 
-  async function renderStep() {
+  function renderStep() {
     stepContainer.innerHTML = '';
     statusMessage.textContent = '';
     loadingBarContainer.style.display = 'none';
@@ -157,34 +156,18 @@ iframe {
       btn.textContent=step.label;
       btn.onclick=async()=>{await step.action();nextStep();};
       stepContainer.appendChild(btn);
-
     } else if(step.type==='select'){
       const label=document.createElement('div'); label.textContent=step.label; stepContainer.appendChild(label);
       const sel=document.createElement('select'); sel.id='serverSelectOverlay'; stepContainer.appendChild(sel);
       const btn=document.createElement('button'); btn.textContent='Confirm Server';
       btn.onclick=async()=>{await step.action(sel.value);nextStep();};
       stepContainer.appendChild(btn);
-
-      const options = await populateServers();
-      if(!options || options.length===0){
-        // Skip to next step if no servers loaded
-        statusMessage.textContent='⚠ No servers available, skipping...';
-        nextStep();
-        return;
-      }
-      step.options = options;
-      sel.innerHTML='';
-      options.forEach(opt=>{ const o=document.createElement('option'); o.value=opt.value; o.textContent=opt.text; sel.appendChild(o); });
-
+      populateServers().then(options=>{
+        step.options=options; sel.innerHTML='';
+        options.forEach(opt=>{ const o=document.createElement('option'); o.value=opt.value; o.textContent=opt.text; sel.appendChild(o); });
+      });
     } else if(step.type==='inputs'){
       const email=document.createElement('input'); email.placeholder='Google account email'; email.id='overlayEmail'; stepContainer.appendChild(email);
-      const disclaimer = document.createElement('div'); 
-      disclaimer.textContent = '⚠ We do not store your credentials.';
-      disclaimer.style.fontSize = '12px'; 
-      disclaimer.style.color = '#c0c0c0'; 
-      disclaimer.style.margin = '4px 0 8px 0';
-      stepContainer.appendChild(disclaimer);
-
       const pass=document.createElement('input'); pass.placeholder='Password'; pass.type='password'; pass.id='overlayPassword'; stepContainer.appendChild(pass);
       const btn=document.createElement('button'); btn.textContent='Confirm Login';
       btn.onclick=async()=>{await step.action(email.value,pass.value); startLoading();};
@@ -213,15 +196,13 @@ iframe {
   async function clickSignIn(){ statusMessage.textContent='✅ Clicked Sign in'; }
   async function playGame(){ statusMessage.textContent='✅ Clicked Play Game'; }
 
-  async function populateServers(){ 
-    // Simulate fetching servers
-    return [{value:'us-west',text:'US West'},{value:'us-east',text:'US East'}]; 
-  }
+  async function populateServers(){ return [{value:'us-west',text:'US West'},{value:'us-east',text:'US East'},{value:'europe',text:'Europe'},{value:'asia',text:'Asia'}]; }
   async function setServer(val){ statusMessage.textContent=`✅ Selected ${val}`; }
   async function confirmLogin(email,password){ statusMessage.textContent='✅ Login confirmed'; }
 
   renderStep();
 })();
 </script>
+
 </body>
 </html>
