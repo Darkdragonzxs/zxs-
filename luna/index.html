@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game Welcome</title>
+<title>nig</title>
 <style>
   body {
     margin: 0;
@@ -20,47 +20,7 @@
     z-index: 1;
   }
 
-  /* Welcome screen */
-  #welcomeScreen {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: #0b0b0b;
-    color: #eaeaea;
-    z-index: 3000;
-    text-align: center;
-    transition: opacity 0.5s ease;
-  }
-
-  #welcomeScreen h1 {
-    font-size: 3em;
-    margin-bottom: 20px;
-  }
-
-  #welcomeScreen p {
-    font-size: 1.2em;
-    margin-bottom: 40px;
-  }
-
-  #welcomeScreen button {
-    padding: 14px 28px;
-    font-size: 18px;
-    color: #fff;
-    background: linear-gradient(145deg, #2a82e4, #1b66b3);
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: 0.3s ease;
-  }
-
-  #welcomeScreen button:hover {
-    background: linear-gradient(145deg, #1b66b3, #2a82e4);
-  }
-
-  /* Existing overlay */
+  /* Liquid glass fullscreen overlay */
   #fullscreenOverlay {
     position: fixed;
     inset: 0;
@@ -78,23 +38,81 @@
     transition: opacity 0.4s ease;
   }
 
-  #fullscreenOverlay.hide {
-    opacity: 0;
-    visibility: hidden;
+  #fullscreenOverlay button,
+  #fullscreenOverlay select,
+  #fullscreenOverlay input {
+    width: 260px;
+    margin: 8px 0;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 12px;
+    border: none;
+    outline: none;
+    transition: 0.25s ease;
+    color: white;
+  }
+
+  #fullscreenOverlay button {
+    background: linear-gradient(145deg, rgba(72, 80, 90, 0.9), rgba(55, 60, 65, 0.8));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 0 6px rgba(255,255,255,0.1), 0 0 10px rgba(0,0,0,0.3);
+    cursor: pointer;
+  }
+
+  #fullscreenOverlay button:hover {
+    background: linear-gradient(145deg, rgba(90, 98, 108, 0.95), rgba(65, 70, 75, 0.85));
+  }
+
+  #fullscreenOverlay input,
+  #fullscreenOverlay select {
+    background: rgba(40, 40, 40, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.4);
+  }
+
+  #dialogueBox {
+    margin-top: 12px;
+    padding: 12px 18px;
+    width: 240px;
+    font-size: 14px;
+    background: rgba(50, 50, 50, 0.45);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    color: #cfd4da;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+
+  #statusMessage {
+    margin-top: 20px;
+    font-size: 17px;
+    color: #8ab4f8;
+  }
+
+  /* Loading bar */
+  #loadingBarContainer {
+    width: 260px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 20px;
+    display: none;
+  }
+
+  #loadingBar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #2a82e4, #1b66b3);
+    border-radius: 8px;
+    transition: width 0.3s linear;
   }
 </style>
 </head>
 <body>
-  <iframe src="/cloudmoon/game/com.roblox.client/"></iframe>
+  <iframe src="https://zxs.comet.lat/cloudmoon/game/com.roblox.client/"></iframe>
 
-  <!-- Welcome Screen -->
-  <div id="welcomeScreen">
-    <h1>Welcome to Cloudmoon!</h1>
-    <p>Get ready to jump into your favorite games safely and smoothly.</p>
-    <button id="continueBtn">Continue</button>
-  </div>
-
-  <!-- Existing overlay -->
   <div id="fullscreenOverlay">
     <h2 id="titleText">Click Play</h2>
 
@@ -141,16 +159,6 @@
   </div>
 
 <script>
-  // Welcome screen
-  const welcomeScreen = document.getElementById("welcomeScreen");
-  const continueBtn = document.getElementById("continueBtn");
-
-  continueBtn.onclick = () => {
-    welcomeScreen.style.opacity = 0;
-    setTimeout(() => welcomeScreen.remove(), 500);
-  };
-
-  // Existing overlay logic
   const steps = [
     "playBtn",
     "serverSelectContainer",
@@ -169,13 +177,10 @@
 
   function showStep(index) {
     steps.forEach((id, i) => {
-      const el = document.getElementById(id);
-      if (el.tagName === "DIV") {
-        el.style.display = i === index ? "flex" : "none";
-        el.style.flexDirection = "column";
-        el.style.alignItems = "center";
-      } else {
-        el.style.display = i === index ? "block" : "none";
+      document.getElementById(id).style.display = i === index ? "flex" : "none";
+      if (document.getElementById(id).tagName === "DIV") {
+        document.getElementById(id).style.flexDirection = "column";
+        document.getElementById(id).style.alignItems = "center";
       }
     });
     titleText.textContent = [
